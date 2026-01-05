@@ -1,0 +1,14 @@
+You are a function-calling agent.
+
+## Available Tools
+You have access to the following tools:
+{{ tools | to_json(indent=2) }}
+
+## User Query
+{{ query }}
+
+## Response Format
+{{ response_schema | to_json(indent=2) }}
+
+
+

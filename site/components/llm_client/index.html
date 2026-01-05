@@ -1,0 +1,2572 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Raw primitives and explicit loops for AI agents.">
+      
+      
+      
+        <link rel="canonical" href="https://tawab-safi.github.io/rawagents/components/llm_client/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Product Requirements Document (PRD) - RawAgents</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#product-requirements-document-prd" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="RawAgents" class="md-header__button md-logo" aria-label="RawAgents" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            RawAgents
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Product Requirements Document (PRD)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tawab-safi/rawagents" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tawab-safi/rawagents
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="RawAgents" class="md-nav__button md-logo" aria-label="RawAgents" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    RawAgents
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tawab-safi/rawagents" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tawab-safi/rawagents
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rawagents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rawagents_philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../issues_with_agent_frameworks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issues with Agent Frameworks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Components
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../loops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recipes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Recipes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/basic_chat_bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic chat bot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/tool_using_assistant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool-using assistant
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/human_in_the_loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/stateful_researcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stateful researcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/streaming_api_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming API server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="product-requirements-document-prd">Product Requirements Document (PRD)<a class="headerlink" href="#product-requirements-document-prd" title="Permanent link">&para;</a></h1>
+<h1 id="ai-components-library-universal-llm-client">AI Components Library - Universal LLM Client<a class="headerlink" href="#ai-components-library-universal-llm-client" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> 3.0
+<strong>Date:</strong> November 2025
+<strong>Status:</strong> Final Draft
+<strong>Author:</strong> Tawab Safi</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-executive-summary">Executive Summary</a></li>
+<li><a href="#2-background--motivation">Background &amp; Motivation</a></li>
+<li><a href="#3-goals--non-goals">Goals &amp; Non-Goals</a></li>
+<li><a href="#4-technical-architecture">Technical Architecture</a></li>
+<li><a href="#5-detailed-requirements">Detailed Requirements</a></li>
+<li><a href="#6-api-design">API Design</a></li>
+<li><a href="#7-project-structure--packaging">Project Structure &amp; Packaging</a></li>
+<li><a href="#8-implementation-approach">Implementation Approach</a></li>
+<li><a href="#9-dependencies--integration">Dependencies &amp; Integration</a></li>
+<li><a href="#10-testing-strategy">Testing Strategy</a></li>
+<li><a href="#11-risks--mitigations">Risks &amp; Mitigations</a></li>
+<li><a href="#12-success-criteria">Success Criteria</a></li>
+<li><a href="#13-timeline--milestones">Timeline &amp; Milestones</a></li>
+<li><a href="#14-appendix">Appendix</a></li>
+<li><a href="#15-component-relationship-diagram">Component Relationship Diagram</a></li>
+</ol>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
+<h3 id="11-what-were-building">1.1 What We're Building<a class="headerlink" href="#11-what-were-building" title="Permanent link">&para;</a></h3>
+<p>A <strong>monolithic AI components library</strong> starting with a Universal LLM Client as the first component. The library provides reusable building blocks for AI systems with a focus on simplicity and ease of use.</p>
+<p><strong>The Universal LLM Client</strong> provides:
+- <strong>Unified API</strong> across all providers (OpenAI, Anthropic, Google, 100+ more)
+- <strong>Structured outputs</strong> with Pydantic validation and automatic retry
+- <strong>Function/tool calling</strong> with typed schemas (returns tool calls, does NOT execute them)
+- <strong>Streaming</strong> for text responses (separate from structured output/tools for simplicity)
+- <strong>Both sync and async clients</strong> for flexible usage patterns
+- <strong>Infrastructure features</strong>: retries, fallbacks, cost tracking, logging hooks</p>
+<p><strong>Important Design Decision:</strong> This is an LLM <em>client</em>, not an agent framework. Tool calls are returned to the caller for execution - the client does not execute tools or manage conversation loops. This separation enables custom tool execution strategies and keeps the client focused on LLM communication.</p>
+<h3 id="12-key-decisions-made">1.2 Key Decisions Made<a class="headerlink" href="#12-key-decisions-made" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Choice</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>API to use</strong></td>
+<td><code>litellm.completion()</code> (Chat Completions)</td>
+<td>More reliable, works with all 100+ providers, mature Instructor integration. Responses API is OpenAI-only and still in beta.</td>
+</tr>
+<tr>
+<td><strong>Packaging</strong></td>
+<td>Monolithic library</td>
+<td>Simpler to maintain, components share code, one install. Can split later if needed.</td>
+</tr>
+<tr>
+<td><strong>Streaming scope</strong></td>
+<td>Text-only streaming</td>
+<td>Streaming with tools/structured output adds complexity. Keep separate for v1.0.</td>
+</tr>
+<tr>
+<td><strong>Sync/Async</strong></td>
+<td>Two separate client classes</td>
+<td><code>LLMClient</code> (sync) and <code>AsyncLLMClient</code> (async) for clarity.</td>
+</tr>
+<tr>
+<td><strong>Instructor integration</strong></td>
+<td><code>instructor.from_litellm()</code></td>
+<td>Proven reliable pattern. Do NOT use <code>instructor.from_provider("litellm/...")</code> - it had issues until recently and should be avoided for stability.</td>
+</tr>
+<tr>
+<td><strong>Tool execution</strong></td>
+<td>Client returns tool calls only</td>
+<td>Tool execution belongs in agent/orchestrator layer. Keeps client focused and composable.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-why-were-building-it">1.3 Why We're Building It<a class="headerlink" href="#13-why-were-building-it" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Learn</strong> the implementation details of LLM client architecture</li>
+<li><strong>Reuse</strong> a familiar, well-understood component across future projects</li>
+</ol>
+<h3 id="14-core-principle">1.4 Core Principle<a class="headerlink" href="#14-core-principle" title="Permanent link">&para;</a></h3>
+<p><strong>Application-driven development</strong>: Only build what's needed for real projects. This PRD defines the scope for v1.0 based on common agent requirements.</p>
+<h3 id="15-technology-stack">1.5 Technology Stack<a class="headerlink" href="#15-technology-stack" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Layer</th>
+<th>Technology</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provider Abstraction</td>
+<td>LiteLLM</td>
+<td>Unified API for 100+ providers, streaming, cost tracking, retries</td>
+</tr>
+<tr>
+<td>Structured Output</td>
+<td>Instructor</td>
+<td>Pydantic validation, automatic retry on validation failure</td>
+</tr>
+<tr>
+<td>Schema Validation</td>
+<td>Pydantic</td>
+<td>Type-safe response models</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="2-background-motivation">2. Background &amp; Motivation<a class="headerlink" href="#2-background-motivation" title="Permanent link">&para;</a></h2>
+<h3 id="21-problem-statement">2.1 Problem Statement<a class="headerlink" href="#21-problem-statement" title="Permanent link">&para;</a></h3>
+<p>Building AI agents and applications requires consistent, reliable LLM interactions across different providers. Current challenges include:</p>
+<ol>
+<li><strong>Provider fragmentation</strong>: Each provider has different APIs, authentication, and response formats</li>
+<li><strong>Structured output complexity</strong>: Getting validated, typed responses requires significant boilerplate</li>
+<li><strong>Reliability concerns</strong>: Production systems need retries, fallbacks, and proper error handling</li>
+<li><strong>Observability gaps</strong>: Tracking costs, latency, and usage across providers is difficult</li>
+<li><strong>Tool calling inconsistencies</strong>: Function calling schemas differ between providers</li>
+</ol>
+<h3 id="22-technology-evaluation">2.2 Technology Evaluation<a class="headerlink" href="#22-technology-evaluation" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Approach</th>
+<th>Pros</th>
+<th>Cons</th>
+<th>Decision</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Build from scratch</strong></td>
+<td>Maximum control, deep learning</td>
+<td>High maintenance, provider API changes</td>
+<td>❌ Too much effort</td>
+</tr>
+<tr>
+<td><strong>LangChain</strong></td>
+<td>Feature-rich</td>
+<td>Heavy abstractions, complex</td>
+<td>❌ Overkill</td>
+</tr>
+<tr>
+<td><strong>LiteLLM alone</strong></td>
+<td>Provider abstraction, infra features</td>
+<td>Basic structured output (JSON mode only)</td>
+<td>⚠️ Needs Instructor</td>
+</tr>
+<tr>
+<td><strong>Instructor alone</strong></td>
+<td>Excellent structured output</td>
+<td>No rate limiting, cost tracking</td>
+<td>⚠️ Needs LiteLLM</td>
+</tr>
+<tr>
+<td><strong>PydanticAI</strong></td>
+<td>Type-safe agents</td>
+<td>Opinionated, agent-focused</td>
+<td>❌ Wrong abstraction level</td>
+</tr>
+<tr>
+<td><strong>LiteLLM + Instructor</strong></td>
+<td>Best of both worlds</td>
+<td>Two libraries to understand</td>
+<td>✅ Selected</td>
+</tr>
+</tbody>
+</table>
+<h3 id="23-api-choice-completions-vs-responses">2.3 API Choice: Completions vs Responses<a class="headerlink" href="#23-api-choice-completions-vs-responses" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Aspect</th>
+<th>Chat Completions</th>
+<th>Responses API</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Provider support</td>
+<td>✅ All 100+ providers</td>
+<td>❌ OpenAI-centric</td>
+</tr>
+<tr>
+<td>Stability</td>
+<td>✅ Mature, industry standard</td>
+<td>⚠️ Beta</td>
+</tr>
+<tr>
+<td>Instructor support</td>
+<td>✅ Full</td>
+<td>❌ None</td>
+</tr>
+<tr>
+<td>Latency</td>
+<td>✅ Faster (no orchestration overhead)</td>
+<td>❌ Slower</td>
+</tr>
+<tr>
+<td>Model quality</td>
+<td>✅ Same underlying models</td>
+<td>✅ Same underlying models</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Decision</strong>: Use <code>litellm.completion()</code> (Chat Completions API)</p>
+<h3 id="24-what-litellm-provides">2.4 What LiteLLM Provides<a class="headerlink" href="#24-what-litellm-provides" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Unified OpenAI-format API for 100+ providers</li>
+<li>Built-in retry with exponential backoff for rate limits (429, 503, 500, 408)</li>
+<li>Cost tracking via <code>response._hidden_params["response_cost"]</code></li>
+<li>Custom callback system for logging (<code>CustomLogger</code> class)</li>
+<li>Streaming support for tokens and tool calls</li>
+<li>Exception mapping to OpenAI exception types</li>
+</ul>
+<h3 id="25-what-instructor-adds">2.5 What Instructor Adds<a class="headerlink" href="#25-what-instructor-adds" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Pydantic model-based structured output extraction</li>
+<li>Automatic retry when validation fails (separate from API retries)</li>
+<li><code>instructor.from_litellm(completion)</code> for sync</li>
+<li><code>instructor.from_litellm(acompletion)</code> for async</li>
+<li><code>create_with_completion()</code> to get both parsed model and raw response (for cost)</li>
+</ul>
+<h3 id="26-instructor-litellm-reliability-notes">2.6 Instructor + LiteLLM Reliability Notes<a class="headerlink" href="#26-instructor-litellm-reliability-notes" title="Permanent link">&para;</a></h3>
+<p><strong>Known working pattern (USE THIS):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Sync - PROVEN RELIABLE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">litellm</span><span class="w"> </span><span class="kn">import</span> <span class="n">completion</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">instructor</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_litellm</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">Model</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># Async - PROVEN RELIABLE</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">litellm</span><span class="w"> </span><span class="kn">import</span> <span class="n">acompletion</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">instructor</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_litellm</span><span class="p">(</span><span class="n">acompletion</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="n">response_model</span><span class="o">=</span><span class="n">Model</span><span class="p">,</span> <span class="o">...</span><span class="p">)</span>
+
+<span class="c1"># Get cost/usage with structured output</span>
+<span class="n">result</span><span class="p">,</span> <span class="n">raw</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create_with_completion</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">cost</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">_hidden_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;response_cost&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Known issues to avoid:</strong>
+- ❌ <code>instructor.from_provider("litellm/...")</code> - Had issues until recently (see <a href="https://github.com/567-labs/instructor/issues/1710">GitHub #1710</a>). Avoid for stability.
+- ⚠️ Some providers (e.g., Bedrock) may need <code>litellm.drop_params=True</code> for unsupported params
+- ⚠️ Azure cost tracking can be inaccurate - set <code>base_model</code> in config (see Section 5.6)
+- ✅ Keep versions pinned to avoid compatibility issues</p>
+<p><strong>References:</strong>
+- <a href="https://github.com/567-labs/instructor/issues/1710">Instructor Issue #1710 - from_provider LiteLLM support</a>
+- <a href="https://docs.litellm.ai/docs/tutorials/instructor">LiteLLM + Instructor Tutorial</a>
+- <a href="https://python.useinstructor.com/integrations/litellm/">Instructor LiteLLM Integration</a></p>
+<hr />
+<h2 id="3-goals-non-goals">3. Goals &amp; Non-Goals<a class="headerlink" href="#3-goals-non-goals" title="Permanent link">&para;</a></h2>
+<h3 id="31-goals">3.1 Goals<a class="headerlink" href="#31-goals" title="Permanent link">&para;</a></h3>
+<p><strong>G1: Simple, Clean Interface</strong>
+- Minimal API surface that's easy to understand
+- Separate sync and async clients for clarity
+- Works in 30 seconds with sensible defaults</p>
+<p><strong>G2: Structured Output Excellence</strong>
+- First-class Pydantic model support for response schemas
+- Automatic validation with configurable retry on failure
+- Access to cost/usage data even with structured output</p>
+<p><strong>G3: Function/Tool Calling</strong>
+- Typed tool schemas using Pydantic models
+- Consistent tool call handling across providers
+- Combined with structured output OR separate (not streamed)</p>
+<p><strong>G4: Text Streaming (Separate Feature)</strong>
+- Token streaming for real-time text responses
+- NOT combined with tools or structured output in v1.0
+- Keeps implementation simpler and more reliable</p>
+<p><strong>G5: Production-Ready Infrastructure</strong>
+- Automatic retries with exponential backoff (via LiteLLM)
+- Per-call cost and token accounting
+- Extensible logging with metadata support
+- Both sync and async support for parallel operations</p>
+<p><strong>G6: Easy Distribution</strong>
+- Single <code>pip install</code> from git repository
+- Works immediately with environment variables
+- Comprehensive examples and documentation</p>
+<h3 id="32-non-goals">3.2 Non-Goals<a class="headerlink" href="#32-non-goals" title="Permanent link">&para;</a></h3>
+<p><strong>NG1: Agent Framework</strong>
+- This is an LLM client, not an agent orchestration system
+- Agent loops, memory, and planning are separate components</p>
+<p><strong>NG2: Streaming + Tools/Structured Combined</strong>
+- Streaming with function calling or structured output adds significant complexity
+- Will be considered for v2.0 after core is stable</p>
+<p><strong>NG3: Prompt Management</strong>
+- No templating system built-in
+- Separate component for future</p>
+<p><strong>NG4: RAG/Embeddings</strong>
+- Embedding generation is out of scope for this component
+- Separate component for future</p>
+<p><strong>NG5: Multi-Modal Support (v1.0)</strong>
+- Focus on text/chat completion first
+- Image/audio may be added in v2.0</p>
+<p><strong>NG6: Responses API Support</strong>
+- OpenAI's new Responses API is out of scope
+- Chat Completions API is the target</p>
+<p><strong>NG7: Tool Execution / Agent Loops</strong>
+- The client returns tool calls but does NOT execute them
+- Tool execution, agent loops, and orchestration are separate components
+- This keeps the client focused on LLM communication only
+- A future "Agent" component will handle tool orchestration</p>
+<p><strong>NG8: Automatic Conversation Management</strong>
+- The client does not maintain conversation state
+- Each call is stateless - the caller manages message history
+- This enables flexible memory strategies in higher-level components</p>
+<hr />
+<h2 id="4-technical-architecture">4. Technical Architecture<a class="headerlink" href="#4-technical-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="41-high-level-architecture">4.1 High-Level Architecture<a class="headerlink" href="#41-high-level-architecture" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span>                      <span class="n">Your</span> <span class="n">Application</span>                           <span class="err">│</span>
+<span class="err">│</span>   <span class="kn">from</span><span class="w"> </span><span class="nn">rawagents</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMClient</span>                  <span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────────┘</span>
+                              <span class="err">│</span>
+                              <span class="err">▼</span>
+<span class="err">┌─────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span>                 <span class="n">rawagents</span><span class="o">.</span><span class="n">llm_client</span>                        <span class="err">│</span>
+<span class="err">│</span>  <span class="err">┌────────────────────────┐</span>  <span class="err">┌─────────────────────────────┐</span>   <span class="err">│</span>
+<span class="err">│</span>  <span class="err">│</span>  <span class="n">LLM</span>          <span class="err">│</span>  <span class="err">│</span>  <span class="n">AsyncLLM</span>          <span class="err">│</span>   <span class="err">│</span>
+<span class="err">│</span>  <span class="err">│</span>  <span class="p">(</span><span class="n">Sync</span><span class="p">)</span>                <span class="err">│</span>  <span class="err">│</span>  <span class="p">(</span><span class="n">Async</span><span class="p">)</span>                    <span class="err">│</span>   <span class="err">│</span>
+<span class="err">│</span>  <span class="err">│</span>                        <span class="err">│</span>  <span class="err">│</span>                             <span class="err">│</span>   <span class="err">│</span>
+<span class="err">│</span>  <span class="err">│</span>  <span class="err">•</span> <span class="n">complete</span><span class="p">()</span>          <span class="err">│</span>  <span class="err">│</span>  <span class="err">•</span> <span class="n">complete</span><span class="p">()</span>               <span class="err">│</span>   <span class="err">│</span>
+<span class="err">│</span>  <span class="err">│</span>  <span class="err">•</span> <span class="n">complete_structured</span> <span class="err">│</span>  <span class="err">│</span>  <span class="err">•</span> <span class="n">complete_structured</span><span class="p">()</span>    <span class="err">│</span>   <span class="err">│</span>
+<span class="err">│</span>  <span class="err">│</span>  <span class="err">•</span> <span class="n">complete_with_tools</span> <span class="err">│</span>  <span class="err">│</span>  <span class="err">•</span> <span class="n">complete_with_tools</span><span class="p">()</span>    <span class="err">│</span>   <span class="err">│</span>
+<span class="err">│</span>  <span class="err">│</span>  <span class="err">•</span> <span class="n">stream</span><span class="p">()</span>            <span class="err">│</span>  <span class="err">│</span>  <span class="err">•</span> <span class="n">stream</span><span class="p">()</span>                 <span class="err">│</span>   <span class="err">│</span>
+<span class="err">│</span>  <span class="err">└────────────────────────┘</span>  <span class="err">└─────────────────────────────┘</span>   <span class="err">│</span>
+<span class="err">│</span>                                                                 <span class="err">│</span>
+<span class="err">│</span>  <span class="err">┌──────────────┐</span>  <span class="err">┌──────────────┐</span>  <span class="err">┌────────────────────┐</span>    <span class="err">│</span>
+<span class="err">│</span>  <span class="err">│</span>  <span class="n">LLMConfig</span>   <span class="err">│</span>  <span class="err">│</span>  <span class="n">LLMResponse</span> <span class="err">│</span>  <span class="err">│</span>  <span class="n">ToolCall</span>          <span class="err">│</span>    <span class="err">│</span>
+<span class="err">│</span>  <span class="err">│</span>  <span class="p">(</span><span class="n">Settings</span><span class="p">)</span>  <span class="err">│</span>  <span class="err">│</span>  <span class="p">(</span><span class="n">Results</span><span class="p">)</span>   <span class="err">│</span>  <span class="err">│</span>  <span class="p">(</span><span class="n">Tool</span> <span class="n">results</span><span class="p">)</span>    <span class="err">│</span>    <span class="err">│</span>
+<span class="err">│</span>  <span class="err">└──────────────┘</span>  <span class="err">└──────────────┘</span>  <span class="err">└────────────────────┘</span>    <span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────────┘</span>
+                              <span class="err">│</span>
+         <span class="err">┌────────────────────┴────────────────────┐</span>
+         <span class="err">│</span>                                         <span class="err">│</span>
+         <span class="err">▼</span>                                         <span class="err">▼</span>
+<span class="err">┌─────────────────────┐</span>               <span class="err">┌─────────────────────┐</span>
+<span class="err">│</span>     <span class="n">Instructor</span>      <span class="err">│</span>               <span class="err">│</span>      <span class="n">LiteLLM</span>        <span class="err">│</span>
+<span class="err">│</span>  <span class="n">from_litellm</span><span class="p">()</span>     <span class="err">│───────────────│</span>  <span class="n">completion</span><span class="p">()</span>       <span class="err">│</span>
+<span class="err">│</span>  <span class="p">(</span><span class="n">structured</span> <span class="n">out</span><span class="p">)</span>   <span class="err">│</span>               <span class="err">│</span>  <span class="n">acompletion</span><span class="p">()</span>      <span class="err">│</span>
+<span class="err">└─────────────────────┘</span>               <span class="err">└─────────────────────┘</span>
+                                               <span class="err">│</span>
+                    <span class="err">┌──────────────────────────┼──────────────────────────┐</span>
+                    <span class="err">│</span>                          <span class="err">│</span>                          <span class="err">│</span>
+                    <span class="err">▼</span>                          <span class="err">▼</span>                          <span class="err">▼</span>
+             <span class="err">┌────────────┐</span>             <span class="err">┌────────────┐</span>             <span class="err">┌────────────┐</span>
+             <span class="err">│</span>   <span class="n">OpenAI</span>   <span class="err">│</span>             <span class="err">│</span>  <span class="n">Anthropic</span> <span class="err">│</span>             <span class="err">│</span>   <span class="n">Google</span>   <span class="err">│</span>
+             <span class="err">│</span>    <span class="n">API</span>     <span class="err">│</span>             <span class="err">│</span>    <span class="n">API</span>     <span class="err">│</span>             <span class="err">│</span>    <span class="n">API</span>     <span class="err">│</span>
+             <span class="err">└────────────┘</span>             <span class="err">└────────────┘</span>             <span class="err">└────────────┘</span>
+</code></pre></div>
+
+<h3 id="42-design-principles">4.2 Design Principles<a class="headerlink" href="#42-design-principles" title="Permanent link">&para;</a></h3>
+<ol>
+<li><strong>Two Clients, Not One</strong>: Separate <code>LLMClient</code> (sync) and <code>AsyncLLMClient</code> (async) rather than mixing patterns</li>
+<li><strong>Composition Over Configuration</strong>: Use Instructor for structured output, LiteLLM for everything else</li>
+<li><strong>Streaming is Separate</strong>: <code>stream()</code> only returns text chunks, no tools or structured output</li>
+<li><strong>Explicit Over Implicit</strong>: Methods clearly indicate what they do (<code>complete_structured</code>, <code>complete_with_tools</code>)</li>
+</ol>
+<h3 id="43-method-routing">4.3 Method Routing<a class="headerlink" href="#43-method-routing" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Method</th>
+<th>Uses Instructor?</th>
+<th>Uses LiteLLM Directly?</th>
+<th>Purpose</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>complete()</code></td>
+<td>No</td>
+<td>Yes</td>
+<td>Basic text completion</td>
+</tr>
+<tr>
+<td><code>complete_structured()</code></td>
+<td>Yes</td>
+<td>Via Instructor</td>
+<td>Pydantic model extraction</td>
+</tr>
+<tr>
+<td><code>complete_with_tools()</code></td>
+<td>No</td>
+<td>Yes</td>
+<td>Function/tool calling</td>
+</tr>
+<tr>
+<td><code>complete_with_tools_structured()</code></td>
+<td>Yes</td>
+<td>Via Instructor</td>
+<td>Tools + structured response</td>
+</tr>
+<tr>
+<td><code>stream()</code></td>
+<td>No</td>
+<td>Yes</td>
+<td>Text streaming only</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="5-detailed-requirements">5. Detailed Requirements<a class="headerlink" href="#5-detailed-requirements" title="Permanent link">&para;</a></h2>
+<h3 id="51-provider-support">5.1 Provider Support<a class="headerlink" href="#51-provider-support" title="Permanent link">&para;</a></h3>
+<h4 id="511-required-providers-v10">5.1.1 Required Providers (v1.0)<a class="headerlink" href="#511-required-providers-v10" title="Permanent link">&para;</a></h4>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Model Format</th>
+<th>Features</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI</td>
+<td><code>openai/gpt-4o</code></td>
+<td>Chat, streaming, tools, structured output</td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td><code>anthropic/claude-3-5-sonnet-latest</code></td>
+<td>Chat, streaming, tools, structured output</td>
+</tr>
+<tr>
+<td>Google</td>
+<td><code>gemini/gemini-1.5-pro</code></td>
+<td>Chat, streaming, tools, structured output</td>
+</tr>
+</tbody>
+</table>
+<h4 id="512-extensibility">5.1.2 Extensibility<a class="headerlink" href="#512-extensibility" title="Permanent link">&para;</a></h4>
+<p>Any LiteLLM-supported provider works automatically:
+- Azure: <code>azure/deployment-name</code>
+- Bedrock: <code>bedrock/anthropic.claude-3-sonnet</code>
+- Ollama: <code>ollama/llama3</code>
+- 100+ more via LiteLLM</p>
+<h3 id="52-response-types">5.2 Response Types<a class="headerlink" href="#52-response-types" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Optional</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">LLMResponse</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Standard response from completion calls.&quot;&quot;&quot;</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">usage</span><span class="p">:</span> <span class="nb">dict</span>  <span class="c1"># {prompt_tokens, completion_tokens, total_tokens}</span>
+    <span class="n">cost</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">float</span><span class="p">]</span>  <span class="c1"># In USD, from LiteLLM</span>
+    <span class="n">latency_ms</span><span class="p">:</span> <span class="nb">float</span>
+    <span class="n">raw_response</span><span class="p">:</span> <span class="n">Any</span>  <span class="c1"># Original LiteLLM response</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ToolCall</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Represents a tool/function call from the model.&quot;&quot;&quot;</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">arguments</span><span class="p">:</span> <span class="nb">dict</span>
+
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ToolResponse</span><span class="p">(</span><span class="n">LLMResponse</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Response that includes tool calls.&quot;&quot;&quot;</span>
+    <span class="n">tool_calls</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ToolCall</span><span class="p">]</span>
+</code></pre></div>
+
+<h3 id="53-tool-definition">5.3 Tool Definition<a class="headerlink" href="#53-tool-definition" title="Permanent link">&para;</a></h3>
+<p>Tools are defined as Pydantic models:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">GetWeather</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get current weather for a location.&quot;&quot;&quot;</span>
+    <span class="n">location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;City and state, e.g., San Francisco, CA&quot;</span><span class="p">)</span>
+    <span class="n">unit</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="s2">&quot;fahrenheit&quot;</span><span class="p">,</span> <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Temperature unit&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<p>The client converts Pydantic models to OpenAI tool format internally.</p>
+<h3 id="54-streaming-text-only">5.4 Streaming (Text Only)<a class="headerlink" href="#54-streaming-text-only" title="Permanent link">&para;</a></h3>
+<p>Streaming is intentionally simple in v1.0:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Returns Iterator[str] or AsyncIterator[str]</span>
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">]):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Not supported in streaming:</strong>
+- Tool calls
+- Structured output
+- These require non-streaming methods</p>
+<h3 id="55-retry-behavior">5.5 Retry Behavior<a class="headerlink" href="#55-retry-behavior" title="Permanent link">&para;</a></h3>
+<p>The client has <strong>two independent retry systems</strong> that work together:</p>
+<table>
+<thead>
+<tr>
+<th>Type</th>
+<th>Library</th>
+<th>Triggers On</th>
+<th>Parameter</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>API Retries</strong></td>
+<td>LiteLLM</td>
+<td>429, 408, 503, 500 errors</td>
+<td><code>num_retries</code></td>
+<td>3</td>
+</tr>
+<tr>
+<td><strong>Validation Retries</strong></td>
+<td>Instructor</td>
+<td>Pydantic validation failures</td>
+<td><code>max_retries</code></td>
+<td>3</td>
+</tr>
+</tbody>
+</table>
+<p><strong>LiteLLM API Retries</strong> (automatic):
+- Retries on: <code>429 (RateLimit)</code>, <code>408 (Timeout)</code>, <code>503 (ServiceUnavailable)</code>, <code>500 (InternalError)</code>
+- Does NOT retry on: <code>400 (BadRequest)</code>, <code>401 (Auth)</code>, <code>ContentPolicyViolation</code>
+- Uses exponential backoff with jitter (via Tenacity)
+- Configurable via <code>num_retries</code> parameter</p>
+<p><strong>Instructor Validation Retries</strong> (configurable):
+- Retries when Pydantic validation fails
+- Sends validation error back to model for correction
+- Configured via <code>max_retries</code> parameter
+- Each retry is a new API call (costs tokens)</p>
+<p><strong>Important:</strong> These are separate systems. A request might succeed at the API level but fail validation, triggering Instructor retries. Or it might fail at the API level (rate limit) and be retried by LiteLLM before even reaching Instructor.</p>
+<h3 id="56-cost-tracking-caveats">5.6 Cost Tracking Caveats<a class="headerlink" href="#56-cost-tracking-caveats" title="Permanent link">&para;</a></h3>
+<p><strong>Azure Cost Tracking Issue:</strong>
+Azure returns generic model names (e.g., <code>gpt-4</code>) in responses instead of the specific deployment name, causing inaccurate cost calculation.</p>
+<p><strong>Fix:</strong> Set <code>base_model</code> in your configuration:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">config</span> <span class="o">=</span> <span class="n">LLMConfig</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;azure/my-gpt4-deployment&quot;</span><span class="p">,</span>
+    <span class="n">model_info</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;azure/my-gpt4-deployment&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;base_model&quot;</span><span class="p">:</span> <span class="s2">&quot;azure/gpt-4-1106-preview&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Custom Pricing:</strong>
+For models not in LiteLLM's cost map, set custom pricing:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">config</span> <span class="o">=</span> <span class="n">LLMConfig</span><span class="p">(</span>
+    <span class="n">model_info</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;custom/my-model&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;input_cost_per_token&quot;</span><span class="p">:</span> <span class="mf">0.00001</span><span class="p">,</span>
+            <span class="s2">&quot;output_cost_per_token&quot;</span><span class="p">:</span> <span class="mf">0.00003</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="57-fallback-support">5.7 Fallback Support<a class="headerlink" href="#57-fallback-support" title="Permanent link">&para;</a></h3>
+<p>LiteLLM supports automatic fallbacks when a model fails:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">],</span>
+    <span class="n">fallbacks</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;anthropic/claude-3-5-sonnet-latest&quot;</span><span class="p">,</span> <span class="s2">&quot;gemini/gemini-1.5-pro&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>The client will try models in order until one succeeds. Fallbacks are triggered by:
+- Rate limit errors (429)
+- Service unavailable (503)
+- Timeout errors</p>
+<p><strong>Cooldown:</strong> Failed models enter a 60-second cooldown before being retried.</p>
+<hr />
+<h2 id="6-api-design">6. API Design<a class="headerlink" href="#6-api-design" title="Permanent link">&para;</a></h2>
+<h3 id="61-client-initialization">6.1 Client Initialization<a class="headerlink" href="#61-client-initialization" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rawagents</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMClient</span><span class="p">,</span> <span class="n">AsyncLLMClient</span><span class="p">,</span> <span class="n">LLMConfig</span>
+
+<span class="c1"># Minimal - uses environment variables</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">LLMClient</span><span class="p">()</span>
+
+<span class="c1"># With configuration</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">LLMConfig</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span><span class="p">,</span>
+    <span class="n">retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>                           <span class="c1"># LiteLLM API retries</span>
+    <span class="n">structured_validation_retries</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span>     <span class="c1"># Instructor validation retries</span>
+    <span class="n">timeout</span><span class="o">=</span><span class="mi">60</span><span class="p">,</span>
+    <span class="n">fallbacks</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;anthropic/claude-3-5-sonnet-latest&quot;</span><span class="p">],</span>  <span class="c1"># Fallback models</span>
+<span class="p">)</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">LLMClient</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<span class="c1"># Async client</span>
+<span class="n">async_client</span> <span class="o">=</span> <span class="n">AsyncLLMClient</span><span class="p">(</span><span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">)</span>
+
+<span class="c1"># Advanced configuration with model-specific settings</span>
+<span class="n">config</span> <span class="o">=</span> <span class="n">LLMConfig</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;azure/my-gpt4-deployment&quot;</span><span class="p">,</span>
+    <span class="n">model_info</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;azure/my-gpt4-deployment&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s2">&quot;base_model&quot;</span><span class="p">:</span> <span class="s2">&quot;azure/gpt-4-1106-preview&quot;</span>  <span class="c1"># For accurate cost tracking</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="62-basic-completion">6.2 Basic Completion<a class="headerlink" href="#62-basic-completion" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Sync</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;You are helpful.&quot;</span><span class="p">},</span>
+        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello!&quot;</span><span class="p">}</span>
+    <span class="p">],</span>
+    <span class="n">temperature</span><span class="o">=</span><span class="mf">0.7</span><span class="p">,</span>
+    <span class="n">max_tokens</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span>
+    <span class="n">metadata</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;trace_id&quot;</span><span class="p">:</span> <span class="s2">&quot;abc-123&quot;</span><span class="p">}</span>  <span class="c1"># For logging</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>        <span class="c1"># &quot;Hello! How can I help?&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>           <span class="c1"># 0.0023</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">usage</span><span class="p">)</span>          <span class="c1"># {&quot;prompt_tokens&quot;: 10, ...}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">latency_ms</span><span class="p">)</span>     <span class="c1"># 234.5</span>
+
+<span class="c1"># Async</span>
+<span class="n">response</span> <span class="o">=</span> <span class="k">await</span> <span class="n">async_client</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="63-structured-output">6.3 Structured Output<a class="headerlink" href="#63-structured-output" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Person</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">occupation</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="c1"># Sync - returns Person instance directly</span>
+<span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">complete_structured</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic/claude-3-5-sonnet-latest&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;John is a 30 year old engineer.&quot;</span><span class="p">}],</span>
+    <span class="n">response_model</span><span class="o">=</span><span class="n">Person</span><span class="p">,</span>
+    <span class="n">max_retries</span><span class="o">=</span><span class="mi">3</span>  <span class="c1"># Retry on validation failure</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>       <span class="c1"># &quot;John&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">age</span><span class="p">)</span>        <span class="c1"># 30</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">occupation</span><span class="p">)</span> <span class="c1"># &quot;engineer&quot;</span>
+
+<span class="c1"># Async</span>
+<span class="n">person</span> <span class="o">=</span> <span class="k">await</span> <span class="n">async_client</span><span class="o">.</span><span class="n">complete_structured</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="631-structured-output-with-metadata">6.3.1 Structured Output with Metadata<a class="headerlink" href="#631-structured-output-with-metadata" title="Permanent link">&para;</a></h3>
+<p>When you need access to cost/usage data alongside structured output:</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Returns tuple of (parsed_model, LLMResponse)</span>
+<span class="n">person</span><span class="p">,</span> <span class="n">metadata</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">complete_structured</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;anthropic/claude-3-5-sonnet-latest&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;John is a 30 year old engineer.&quot;</span><span class="p">}],</span>
+    <span class="n">response_model</span><span class="o">=</span><span class="n">Person</span><span class="p">,</span>
+    <span class="n">include_metadata</span><span class="o">=</span><span class="kc">True</span>  <span class="c1"># Request metadata</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>           <span class="c1"># &quot;John&quot;</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">cost</span><span class="p">)</span>         <span class="c1"># 0.0023</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">usage</span><span class="p">)</span>        <span class="c1"># {&quot;prompt_tokens&quot;: 15, ...}</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">metadata</span><span class="o">.</span><span class="n">latency_ms</span><span class="p">)</span>   <span class="c1"># 342.1</span>
+</code></pre></div>
+
+<h3 id="64-tool-calling">6.4 Tool Calling<a class="headerlink" href="#64-tool-calling" title="Permanent link">&para;</a></h3>
+<p><strong>Important:</strong> <code>complete_with_tools()</code> returns tool call <em>requests</em> from the model but does <strong>NOT</strong> execute them. The caller is responsible for:
+1. Executing the requested tools
+2. Formatting results as tool messages
+3. Calling the client again to continue the conversation</p>
+<p>This design enables custom tool execution strategies (async, batched, with safety checks, etc.) and keeps the client focused on LLM communication. Tool orchestration belongs in an Agent component.</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span><span class="p">,</span> <span class="n">Field</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">GetWeather</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Get current weather for a location.&quot;&quot;&quot;</span>
+    <span class="n">location</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">description</span><span class="o">=</span><span class="s2">&quot;City, State&quot;</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">SearchWeb</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Search the web.&quot;&quot;&quot;</span>
+    <span class="n">query</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="c1"># Step 1: Call with tools - model suggests which tools to use</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">complete_with_tools</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;What&#39;s the weather in NYC?&quot;</span><span class="p">}],</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">GetWeather</span><span class="p">,</span> <span class="n">SearchWeb</span><span class="p">],</span>
+    <span class="n">tool_choice</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span>  <span class="c1"># or &quot;required&quot;, &quot;none&quot;</span>
+<span class="p">)</span>
+
+<span class="c1"># Step 2: Check for tool calls (client does NOT execute these)</span>
+<span class="k">if</span> <span class="n">response</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">tool_call</span> <span class="ow">in</span> <span class="n">response</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Tool: </span><span class="si">{</span><span class="n">tool_call</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>       <span class="c1"># &quot;GetWeather&quot;</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Args: </span><span class="si">{</span><span class="n">tool_call</span><span class="o">.</span><span class="n">arguments</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  <span class="c1"># {&quot;location&quot;: &quot;NYC&quot;}</span>
+
+        <span class="c1"># Step 3: YOU execute the tool (this is YOUR responsibility)</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">your_tool_executor</span><span class="p">(</span><span class="n">tool_call</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">tool_call</span><span class="o">.</span><span class="n">arguments</span><span class="p">)</span>
+
+        <span class="c1"># Step 4: Continue conversation with tool result</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;tool_calls&quot;</span><span class="p">:</span> <span class="p">[</span><span class="o">...</span><span class="p">]})</span>
+        <span class="n">messages</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;tool&quot;</span><span class="p">,</span>
+            <span class="s2">&quot;tool_call_id&quot;</span><span class="p">:</span> <span class="n">tool_call</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+            <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+        <span class="p">})</span>
+
+        <span class="c1"># Step 5: Call again for final response</span>
+        <span class="n">final_response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span><span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span><span class="p">,</span> <span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">)</span>
+</code></pre></div>
+
+<p><strong>Why not auto-execute?</strong> Auto-execution requires:
+- Tool registry/dispatch logic
+- Error handling strategy
+- Permission/safety checks
+- State management
+- Conversation memory</p>
+<p>These are Agent concerns, not LLM client concerns.</p>
+<h3 id="65-tools-structured-output-combined">6.5 Tools + Structured Output Combined<a class="headerlink" href="#65-tools-structured-output-combined" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">WeatherReport</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">location</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">temperature</span><span class="p">:</span> <span class="nb">int</span>
+    <span class="n">summary</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="c1"># Get structured response after tool execution</span>
+<span class="n">result</span><span class="p">,</span> <span class="n">tool_calls</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">complete_with_tools_structured</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span>
+        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Weather in NYC?&quot;</span><span class="p">},</span>
+        <span class="c1"># ... previous tool call messages ...</span>
+        <span class="p">{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;tool&quot;</span><span class="p">,</span> <span class="s2">&quot;tool_call_id&quot;</span><span class="p">:</span> <span class="s2">&quot;...&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="n">weather_data</span><span class="p">}</span>
+    <span class="p">],</span>
+    <span class="n">tools</span><span class="o">=</span><span class="p">[</span><span class="n">GetWeather</span><span class="p">],</span>
+    <span class="n">response_model</span><span class="o">=</span><span class="n">WeatherReport</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="66-streaming-text-only">6.6 Streaming (Text Only)<a class="headerlink" href="#66-streaming-text-only" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Sync - returns Iterator[str]</span>
+<span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">client</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Write a poem.&quot;</span><span class="p">}]</span>
+<span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+<span class="c1"># Async - returns AsyncIterator[str]</span>
+<span class="k">async</span> <span class="k">for</span> <span class="n">chunk</span> <span class="ow">in</span> <span class="n">async_client</span><span class="o">.</span><span class="n">stream</span><span class="p">(</span><span class="o">...</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">chunk</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">flush</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="7-project-structure-packaging">7. Project Structure &amp; Packaging<a class="headerlink" href="#7-project-structure-packaging" title="Permanent link">&para;</a></h2>
+<h3 id="71-monolithic-library-structure">7.1 Monolithic Library Structure<a class="headerlink" href="#71-monolithic-library-structure" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="nx">ai</span><span class="o">-</span><span class="nx">components</span><span class="o">/</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">README</span><span class="p">.</span><span class="nx">md</span><span class="w">                    </span><span class="err">#</span><span class="w"> </span><span class="nx">Quick</span><span class="w"> </span><span class="nx">start</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="nx">links</span><span class="w"> </span><span class="nx">to</span><span class="w"> </span><span class="nx">docs</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">LICENSE</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">pyproject</span><span class="p">.</span><span class="nx">toml</span><span class="w">               </span><span class="err">#</span><span class="w"> </span><span class="nx">Single</span><span class="w"> </span><span class="kn">package</span><span class="w"> </span><span class="nx">definition</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">docs</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">index</span><span class="p">.</span><span class="nx">md</span><span class="w">                 </span><span class="err">#</span><span class="w"> </span><span class="nx">Overview</span>
+<span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">quickstart</span><span class="p">.</span><span class="nx">md</span><span class="w">            </span><span class="err">#</span><span class="w"> </span><span class="mi">5</span><span class="o">-</span><span class="nx">minute</span><span class="w"> </span><span class="nx">getting</span><span class="w"> </span><span class="nx">started</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│──</span><span class="w"> </span><span class="nx">components</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">llm</span><span class="o">-</span><span class="nx">client</span><span class="p">.</span><span class="nx">md</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">Deep</span><span class="w"> </span><span class="nx">dive</span>
+<span class="err">│</span><span class="w">   </span><span class="err">│──</span><span class="w"> </span><span class="nx">examples</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">└──</span><span class="w"> </span><span class="nx">llm</span><span class="o">-</span><span class="nx">client</span><span class="o">/</span>
+<span class="err">│</span><span class="w">           </span><span class="err">├──</span><span class="w"> </span><span class="mi">01</span><span class="nx">_basic_completion</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">           </span><span class="err">├──</span><span class="w"> </span><span class="mi">02</span><span class="nx">_structured_output</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">           </span><span class="err">├──</span><span class="w"> </span><span class="mi">03</span><span class="nx">_tool_calling</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">           </span><span class="err">├──</span><span class="w"> </span><span class="mi">04</span><span class="nx">_async_parallel</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">│</span><span class="w">           </span><span class="err">└──</span><span class="w"> </span><span class="mi">05</span><span class="nx">_streaming</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">├──</span><span class="w"> </span><span class="nx">src</span><span class="o">/</span>
+<span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">rawagents</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">__init__</span><span class="p">.</span><span class="nx">py</span><span class="w">          </span><span class="err">#</span><span class="w"> </span><span class="nx">Re</span><span class="o">-</span><span class="nx">export</span><span class="w"> </span><span class="nx">main</span><span class="w"> </span><span class="nx">classes</span>
+<span class="err">│</span><span class="w">       </span><span class="err">├──</span><span class="w"> </span><span class="nx">llm_client</span><span class="o">/</span>
+<span class="err">│</span><span class="w">       </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">__init__</span><span class="p">.</span><span class="nx">py</span><span class="w">      </span><span class="err">#</span><span class="w"> </span><span class="nx">Public</span><span class="w"> </span><span class="nx">API</span>
+<span class="err">│</span><span class="w">       </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">client</span><span class="p">.</span><span class="nx">py</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">LLMClient</span>
+<span class="err">│</span><span class="w">       </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">async_client</span><span class="p">.</span><span class="nx">py</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="nx">AsyncLLMClient</span>
+<span class="err">│</span><span class="w">       </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">types</span><span class="p">.</span><span class="nx">py</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">LLMResponse</span><span class="p">,</span><span class="w"> </span><span class="nx">ToolCall</span><span class="p">,</span><span class="w"> </span><span class="nx">etc</span><span class="p">.</span>
+<span class="err">│</span><span class="w">       </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">config</span><span class="p">.</span><span class="nx">py</span><span class="w">        </span><span class="err">#</span><span class="w"> </span><span class="nx">LLMConfig</span>
+<span class="err">│</span><span class="w">       </span><span class="err">│</span><span class="w">   </span><span class="err">├──</span><span class="w"> </span><span class="nx">tools</span><span class="p">.</span><span class="nx">py</span><span class="w">         </span><span class="err">#</span><span class="w"> </span><span class="nx">Tool</span><span class="w"> </span><span class="nx">schema</span><span class="w"> </span><span class="nx">conversion</span>
+<span class="err">│</span><span class="w">       </span><span class="err">│</span><span class="w">   </span><span class="err">└──</span><span class="w"> </span><span class="nx">exceptions</span><span class="p">.</span><span class="nx">py</span><span class="w">    </span><span class="err">#</span><span class="w"> </span><span class="nx">Custom</span><span class="w"> </span><span class="nx">exceptions</span>
+<span class="err">│</span><span class="w">       </span><span class="err">└──</span><span class="w"> </span><span class="nx">_shared</span><span class="o">/</span><span class="w">             </span><span class="err">#</span><span class="w"> </span><span class="nx">Internal</span><span class="w"> </span><span class="nx">utilities</span><span class="w"> </span><span class="p">(</span><span class="nx">future</span><span class="p">)</span>
+<span class="err">│</span><span class="w">           </span><span class="err">└──</span><span class="w"> </span><span class="nx">__init__</span><span class="p">.</span><span class="nx">py</span>
+<span class="err">└──</span><span class="w"> </span><span class="nx">tests</span><span class="o">/</span>
+<span class="w">    </span><span class="err">└──</span><span class="w"> </span><span class="nx">llm_client</span><span class="o">/</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="nx">test_client</span><span class="p">.</span><span class="nx">py</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="nx">test_async_client</span><span class="p">.</span><span class="nx">py</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="nx">test_structured</span><span class="p">.</span><span class="nx">py</span>
+<span class="w">        </span><span class="err">├──</span><span class="w"> </span><span class="nx">test_tools</span><span class="p">.</span><span class="nx">py</span>
+<span class="w">        </span><span class="err">└──</span><span class="w"> </span><span class="nx">conftest</span><span class="p">.</span><span class="nx">py</span>
+</code></pre></div>
+
+<h3 id="72-top-level-exports">7.2 Top-Level Exports<a class="headerlink" href="#72-top-level-exports" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># src/rawagents/__init__.py</span>
+<span class="sd">&quot;&quot;&quot;AI Components - Reusable building blocks for AI systems.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">rawagents.llm_client</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">LLMClient</span><span class="p">,</span>
+    <span class="n">AsyncLLMClient</span><span class="p">,</span>
+    <span class="n">LLMConfig</span><span class="p">,</span>
+    <span class="n">LLMResponse</span><span class="p">,</span>
+    <span class="n">ToolCall</span><span class="p">,</span>
+    <span class="n">ToolResponse</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="n">__version__</span> <span class="o">=</span> <span class="s2">&quot;0.1.0&quot;</span>
+
+<span class="n">__all__</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="s2">&quot;LLMClient&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;AsyncLLMClient&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LLMConfig&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;LLMResponse&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ToolCall&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;ToolResponse&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<p>This enables clean imports:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rawagents</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMClient</span>
+</code></pre></div>
+
+<h3 id="73-pyprojecttoml">7.3 pyproject.toml<a class="headerlink" href="#73-pyprojecttoml" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">[build-system]</span>
+<span class="n">requires</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;hatchling&quot;</span><span class="p">]</span>
+<span class="n">build-backend</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;hatchling.build&quot;</span>
+
+<span class="k">[project]</span>
+<span class="n">name</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;ai-components&quot;</span>
+<span class="n">version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;0.1.0&quot;</span>
+<span class="n">description</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;Reusable components for building AI systems&quot;</span>
+<span class="n">readme</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;README.md&quot;</span>
+<span class="n">requires-python</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;&gt;=3.10&quot;</span>
+<span class="n">license</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="n">text</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;MIT&quot;</span><span class="p">}</span>
+<span class="n">authors</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="p">{</span><span class="n">name</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;Your Name&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">email</span><span class="w"> </span><span class="p">=</span><span class="w"> </span><span class="s2">&quot;you@example.com&quot;</span><span class="p">}</span>
+<span class="p">]</span>
+<span class="n">keywords</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;llm&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;ai&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;openai&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;anthropic&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;agents&quot;</span><span class="p">,</span><span class="w"> </span><span class="s2">&quot;pydantic&quot;</span><span class="p">]</span>
+<span class="n">classifiers</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;Development Status :: 3 - Alpha&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;Intended Audience :: Developers&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;License :: OSI Approved :: MIT License&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;Programming Language :: Python :: 3.10&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;Programming Language :: Python :: 3.11&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;Programming Language :: Python :: 3.12&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;litellm&gt;=1.50.0,&lt;2.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;instructor&gt;=1.5.0,&lt;2.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pydantic&gt;=2.0.0,&lt;3.0.0&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[project.optional-dependencies]</span>
+<span class="n">dev</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;pytest&gt;=7.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pytest-asyncio&gt;=0.21.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pytest-mock&gt;=3.10.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;mypy&gt;=1.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;ruff&gt;=0.1.0&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+
+<span class="k">[project.urls]</span>
+<span class="n">Homepage</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/yourusername/ai-components&quot;</span>
+<span class="n">Documentation</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/yourusername/ai-components#readme&quot;</span>
+<span class="n">Repository</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;https://github.com/yourusername/ai-components&quot;</span>
+
+<span class="k">[tool.hatch.build.targets.wheel]</span>
+<span class="n">packages</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;src/rawagents&quot;</span><span class="p">]</span>
+
+<span class="k">[tool.pytest.ini_options]</span>
+<span class="n">testpaths</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="s2">&quot;tests&quot;</span><span class="p">]</span>
+<span class="n">asyncio_mode</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;auto&quot;</span>
+
+<span class="k">[tool.mypy]</span>
+<span class="n">python_version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;3.10&quot;</span>
+<span class="n">strict</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="kc">true</span>
+
+<span class="k">[tool.ruff]</span>
+<span class="n">line-length</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">88</span>
+<span class="n">target-version</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;py310&quot;</span>
+</code></pre></div>
+
+<h3 id="74-installation-methods">7.4 Installation Methods<a class="headerlink" href="#74-installation-methods" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Install latest from main branch</span>
+pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/yourusername/ai-components.git
+
+<span class="c1"># Install specific version/tag</span>
+pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/yourusername/ai-components.git@v0.1.0
+
+<span class="c1"># Install specific commit (for reproducibility)</span>
+pip<span class="w"> </span>install<span class="w"> </span>git+https://github.com/yourusername/ai-components.git@abc123
+
+<span class="c1"># For development (editable install)</span>
+git<span class="w"> </span>clone<span class="w"> </span>https://github.com/yourusername/ai-components.git
+<span class="nb">cd</span><span class="w"> </span>ai-components
+pip<span class="w"> </span>install<span class="w"> </span>-e<span class="w"> </span><span class="s2">&quot;.[dev]&quot;</span>
+</code></pre></div>
+
+<p>In requirements.txt:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">ai</span><span class="o">-</span><span class="n">components</span><span class="w"> </span><span class="err">@</span><span class="w"> </span><span class="n">git</span><span class="o">+</span><span class="nl">https</span><span class="p">:</span><span class="o">//</span><span class="n">github</span><span class="p">.</span><span class="n">com</span><span class="o">/</span><span class="n">yourusername</span><span class="o">/</span><span class="n">ai</span><span class="o">-</span><span class="n">components</span><span class="p">.</span><span class="n">git</span><span class="nv">@v0</span><span class="mf">.1.0</span>
+</code></pre></div>
+
+<h3 id="75-readme-quick-start">7.5 README Quick Start<a class="headerlink" href="#75-readme-quick-start" title="Permanent link">&para;</a></h3>
+<p>The README should enable users to start in 30 seconds:</p>
+<div class="codehilite"><pre><span></span><code><span class="gh"># AI Components</span>
+
+Reusable components for building AI systems.
+
+<span class="gu">## Install</span>
+
+```bash
+pip install git+https://github.com/yourusername/ai-components.git
+</code></pre></div>
+
+<h2 id="quick-start">Quick Start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rawagents</span><span class="w"> </span><span class="kn">import</span> <span class="n">LLMClient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">pydantic</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseModel</span>
+
+<span class="c1"># Set your API key</span>
+<span class="c1"># export OPENAI_API_KEY=sk-...</span>
+
+<span class="c1"># Simple completion</span>
+<span class="n">client</span> <span class="o">=</span> <span class="n">LLMClient</span><span class="p">()</span>
+<span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o-mini&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hello!&quot;</span><span class="p">}]</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="o">.</span><span class="n">content</span><span class="p">)</span>
+
+<span class="c1"># Structured output</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Person</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">age</span><span class="p">:</span> <span class="nb">int</span>
+
+<span class="n">person</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">complete_structured</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o-mini&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;John is 25 years old&quot;</span><span class="p">}],</span>
+    <span class="n">response_model</span><span class="o">=</span><span class="n">Person</span>
+<span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> is </span><span class="si">{</span><span class="n">person</span><span class="o">.</span><span class="n">age</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h2 id="examples">Examples<a class="headerlink" href="#examples" title="Permanent link">&para;</a></h2>
+<p>See <a href="examples/">examples/</a> for more usage patterns.</p>
+<div class="codehilite"><pre><span></span><code><span class="o">---</span>
+
+<span class="c1">## 8. Implementation Approach</span>
+
+<span class="c1">### 8.1 Phased Implementation</span>
+
+<span class="c1">#### Phase 1: Core Foundation (Week 1)</span>
+
+<span class="o">**</span><span class="n">Goal</span><span class="o">**</span><span class="p">:</span><span class="w"> </span><span class="n">Basic</span><span class="w"> </span><span class="n">working</span><span class="w"> </span><span class="n">client</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">sync</span><span class="o">/</span><span class="n">async</span><span class="w"> </span><span class="n">support</span>
+
+<span class="o">**</span><span class="n">Tasks</span><span class="o">**</span><span class="p">:</span>
+<span class="mf">1.</span><span class="w"> </span><span class="n">Set</span><span class="w"> </span><span class="n">up</span><span class="w"> </span><span class="n">project</span><span class="w"> </span><span class="n">structure</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">pyproject</span><span class="o">.</span><span class="n">toml</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">Implement</span><span class="w"> </span><span class="err">`</span><span class="n">LLMConfig</span><span class="err">`</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="err">`</span><span class="n">LLMResponse</span><span class="err">`</span><span class="w"> </span><span class="n">types</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">Implement</span><span class="w"> </span><span class="err">`</span><span class="n">LLMClient</span><span class="o">.</span><span class="n">complete</span><span class="p">()</span><span class="err">`</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">Implement</span><span class="w"> </span><span class="err">`</span><span class="n">AsyncLLMClient</span><span class="o">.</span><span class="n">complete</span><span class="p">()</span><span class="err">`</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">Basic</span><span class="w"> </span><span class="n">error</span><span class="w"> </span><span class="n">handling</span>
+<span class="mf">6.</span><span class="w"> </span><span class="n">Unit</span><span class="w"> </span><span class="n">tests</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">core</span><span class="w"> </span><span class="n">functionality</span>
+
+<span class="o">**</span><span class="n">Deliverable</span><span class="o">**</span><span class="p">:</span><span class="w"> </span><span class="n">Client</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">make</span><span class="w"> </span><span class="n">completion</span><span class="w"> </span><span class="n">calls</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">OpenAI</span><span class="p">,</span><span class="w"> </span><span class="n">Anthropic</span><span class="p">,</span><span class="w"> </span><span class="n">Google</span>
+
+<span class="c1">#### Phase 2: Structured Output (Week 1-2)</span>
+
+<span class="o">**</span><span class="n">Goal</span><span class="o">**</span><span class="p">:</span><span class="w"> </span><span class="n">Pydantic</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="n">extraction</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">Instructor</span>
+
+<span class="o">**</span><span class="n">Tasks</span><span class="o">**</span><span class="p">:</span>
+<span class="mf">1.</span><span class="w"> </span><span class="n">Integrate</span><span class="w"> </span><span class="err">`</span><span class="n">instructor</span><span class="o">.</span><span class="n">from_litellm</span><span class="p">()</span><span class="err">`</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">Implement</span><span class="w"> </span><span class="err">`</span><span class="n">complete_structured</span><span class="p">()</span><span class="err">`</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">both</span><span class="w"> </span><span class="n">clients</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">Handle</span><span class="w"> </span><span class="err">`</span><span class="n">create_with_completion</span><span class="p">()</span><span class="err">`</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">get</span><span class="w"> </span><span class="n">cost</span><span class="w"> </span><span class="n">data</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">Validation</span><span class="w"> </span><span class="n">retry</span><span class="w"> </span><span class="n">logic</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">Tests</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">structured</span><span class="w"> </span><span class="n">output</span>
+
+<span class="o">**</span><span class="n">Deliverable</span><span class="o">**</span><span class="p">:</span><span class="w"> </span><span class="n">Client</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">extract</span><span class="w"> </span><span class="n">typed</span><span class="w"> </span><span class="n">Pydantic</span><span class="w"> </span><span class="n">models</span><span class="w"> </span><span class="n">from</span><span class="w"> </span><span class="n">responses</span>
+
+<span class="c1">#### Phase 3: Tool Calling (Week 2)</span>
+
+<span class="o">**</span><span class="n">Goal</span><span class="o">**</span><span class="p">:</span><span class="w"> </span><span class="n">Function</span><span class="o">/</span><span class="k">tool</span><span class="w"> </span><span class="n">calling</span><span class="w"> </span><span class="n">support</span>
+
+<span class="o">**</span><span class="n">Tasks</span><span class="o">**</span><span class="p">:</span>
+<span class="mf">1.</span><span class="w"> </span><span class="n">Implement</span><span class="w"> </span><span class="n">Pydantic</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="k">tool</span><span class="w"> </span><span class="n">schema</span><span class="w"> </span><span class="n">conversion</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">Implement</span><span class="w"> </span><span class="err">`</span><span class="n">complete_with_tools</span><span class="p">()</span><span class="err">`</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">both</span><span class="w"> </span><span class="n">clients</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">Implement</span><span class="w"> </span><span class="err">`</span><span class="n">complete_with_tools_structured</span><span class="p">()</span><span class="err">`</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">Parse</span><span class="w"> </span><span class="k">tool</span><span class="w"> </span><span class="n">call</span><span class="w"> </span><span class="n">responses</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">Tests</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="k">tool</span><span class="w"> </span><span class="n">calling</span>
+
+<span class="o">**</span><span class="n">Deliverable</span><span class="o">**</span><span class="p">:</span><span class="w"> </span><span class="n">Client</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">use</span><span class="w"> </span><span class="n">Pydantic</span><span class="w"> </span><span class="n">models</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="k">tool</span><span class="w"> </span><span class="n">definitions</span>
+
+<span class="c1">#### Phase 4: Streaming (Week 2-3)</span>
+
+<span class="o">**</span><span class="n">Goal</span><span class="o">**</span><span class="p">:</span><span class="w"> </span><span class="n">Text</span><span class="w"> </span><span class="n">streaming</span><span class="w"> </span><span class="n">support</span>
+
+<span class="o">**</span><span class="n">Tasks</span><span class="o">**</span><span class="p">:</span>
+<span class="mf">1.</span><span class="w"> </span><span class="n">Implement</span><span class="w"> </span><span class="err">`</span><span class="n">stream</span><span class="p">()</span><span class="err">`</span><span class="w"> </span><span class="n">returning</span><span class="w"> </span><span class="err">`</span><span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="err">`</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">Implement</span><span class="w"> </span><span class="n">async</span><span class="w"> </span><span class="err">`</span><span class="n">stream</span><span class="p">()</span><span class="err">`</span><span class="w"> </span><span class="n">returning</span><span class="w"> </span><span class="err">`</span><span class="n">AsyncIterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="err">`</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">Handle</span><span class="w"> </span><span class="n">stream</span><span class="w"> </span><span class="n">completion</span><span class="w"> </span><span class="ow">and</span><span class="w"> </span><span class="n">errors</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">Tests</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">streaming</span>
+
+<span class="o">**</span><span class="n">Deliverable</span><span class="o">**</span><span class="p">:</span><span class="w"> </span><span class="n">Client</span><span class="w"> </span><span class="n">can</span><span class="w"> </span><span class="n">stream</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="n">responses</span>
+
+<span class="c1">#### Phase 5: Polish &amp; Documentation (Week 3-4)</span>
+
+<span class="o">**</span><span class="n">Goal</span><span class="o">**</span><span class="p">:</span><span class="w"> </span><span class="n">Release</span><span class="o">-</span><span class="n">ready</span><span class="w"> </span><span class="n">component</span>
+
+<span class="o">**</span><span class="n">Tasks</span><span class="o">**</span><span class="p">:</span>
+<span class="mf">1.</span><span class="w"> </span><span class="n">Write</span><span class="w"> </span><span class="n">comprehensive</span><span class="w"> </span><span class="n">README</span>
+<span class="mf">2.</span><span class="w"> </span><span class="n">Create</span><span class="w"> </span><span class="n">example</span><span class="w"> </span><span class="n">files</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">each</span><span class="w"> </span><span class="n">feature</span>
+<span class="mf">3.</span><span class="w"> </span><span class="n">Docstrings</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">all</span><span class="w"> </span><span class="n">public</span><span class="w"> </span><span class="n">methods</span>
+<span class="mf">4.</span><span class="w"> </span><span class="n">Type</span><span class="w"> </span><span class="n">hints</span><span class="w"> </span><span class="n">verification</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">mypy</span>
+<span class="mf">5.</span><span class="w"> </span><span class="n">Integration</span><span class="w"> </span><span class="n">tests</span><span class="w"> </span><span class="n">with</span><span class="w"> </span><span class="n">real</span><span class="w"> </span><span class="n">APIs</span>
+<span class="mf">6.</span><span class="w"> </span><span class="n">Performance</span><span class="w"> </span><span class="n">baseline</span>
+
+<span class="o">**</span><span class="n">Deliverable</span><span class="o">**</span><span class="p">:</span><span class="w"> </span><span class="n">v0</span><span class="o">.</span><span class="mf">1.0</span><span class="w"> </span><span class="n">release</span>
+
+<span class="c1">### 8.2 Core Implementation Pattern</span>
+
+<span class="err">```</span><span class="n">python</span>
+<span class="c1"># src/rawagents/llm_client/client.py</span>
+
+<span class="n">from</span><span class="w"> </span><span class="n">litellm</span><span class="w"> </span><span class="n">import</span><span class="w"> </span><span class="n">completion</span>
+<span class="n">import</span><span class="w"> </span><span class="n">instructor</span>
+<span class="n">from</span><span class="w"> </span><span class="n">pydantic</span><span class="w"> </span><span class="n">import</span><span class="w"> </span><span class="n">BaseModel</span>
+<span class="n">from</span><span class="w"> </span><span class="n">typing</span><span class="w"> </span><span class="n">import</span><span class="w"> </span><span class="n">Type</span><span class="p">,</span><span class="w"> </span><span class="n">TypeVar</span><span class="p">,</span><span class="w"> </span><span class="n">Iterator</span><span class="p">,</span><span class="w"> </span><span class="n">Optional</span><span class="p">,</span><span class="w"> </span><span class="n">List</span><span class="p">,</span><span class="w"> </span><span class="n">Union</span><span class="p">,</span><span class="w"> </span><span class="n">Tuple</span><span class="p">,</span><span class="w"> </span><span class="n">overload</span>
+<span class="n">import</span><span class="w"> </span><span class="n">time</span>
+
+<span class="n">from</span><span class="w"> </span><span class="o">.</span><span class="n">config</span><span class="w"> </span><span class="n">import</span><span class="w"> </span><span class="n">LLMConfig</span>
+<span class="n">from</span><span class="w"> </span><span class="o">.</span><span class="n">types</span><span class="w"> </span><span class="n">import</span><span class="w"> </span><span class="n">LLMResponse</span><span class="p">,</span><span class="w"> </span><span class="n">ToolCall</span><span class="p">,</span><span class="w"> </span><span class="n">ToolResponse</span>
+<span class="n">from</span><span class="w"> </span><span class="o">.</span><span class="n">tools</span><span class="w"> </span><span class="n">import</span><span class="w"> </span><span class="n">pydantic_to_tool_schema</span>
+
+<span class="n">T</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">TypeVar</span><span class="p">(</span><span class="s1">&#39;T&#39;</span><span class="p">,</span><span class="w"> </span><span class="n">bound</span><span class="o">=</span><span class="n">BaseModel</span><span class="p">)</span>
+
+<span class="k">class</span><span class="w"> </span><span class="n">LLMClient</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Synchronous universal LLM client.</span>
+
+<span class="sd">    This client handles LLM communication only. It does NOT:</span>
+<span class="sd">    - Execute tool calls (returns them for caller to handle)</span>
+<span class="sd">    - Manage conversation state (caller provides full message history)</span>
+<span class="sd">    - Run agent loops (that&#39;s a separate component)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span><span class="w"> </span><span class="n">config</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="n">LLMConfig</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">):</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">config</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="n">LLMConfig</span><span class="p">()</span>
+<span class="w">        </span><span class="c1"># Instructor client for structured output - USE from_litellm, NOT from_provider</span>
+<span class="w">        </span><span class="bp">self</span><span class="o">.</span><span class="n">_instructor</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">instructor</span><span class="o">.</span><span class="n">from_litellm</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">complete</span><span class="p">(</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="n">messages</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="p">[</span><span class="n">dict</span><span class="p">],</span>
+<span class="w">        </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">        </span><span class="o">*</span><span class="p">,</span>
+<span class="w">        </span><span class="n">temperature</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
+<span class="w">        </span><span class="n">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb nb-Type">int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">        </span><span class="n">metadata</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="n">dict</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">        </span><span class="n">fallbacks</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">LLMResponse</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Basic text completion.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">model</span>
+<span class="w">        </span><span class="n">fallbacks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">fallbacks</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">fallbacks</span>
+
+<span class="w">        </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+<span class="w">        </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">completion</span><span class="p">(</span>
+<span class="w">            </span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="w">            </span><span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+<span class="w">            </span><span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+<span class="w">            </span><span class="n">max_tokens</span><span class="o">=</span><span class="n">max_tokens</span><span class="p">,</span>
+<span class="w">            </span><span class="n">metadata</span><span class="o">=</span><span class="n">metadata</span><span class="p">,</span>
+<span class="w">            </span><span class="n">num_retries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">retries</span><span class="p">,</span>
+<span class="w">            </span><span class="n">fallbacks</span><span class="o">=</span><span class="n">fallbacks</span><span class="p">,</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="n">latency_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">LLMResponse</span><span class="p">(</span>
+<span class="w">            </span><span class="n">content</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">model</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+<span class="w">            </span><span class="n">usage</span><span class="o">=</span><span class="p">{</span>
+<span class="w">                </span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">response</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">prompt_tokens</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;completion_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">response</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">completion_tokens</span><span class="p">,</span>
+<span class="w">                </span><span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">response</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">total_tokens</span><span class="p">,</span>
+<span class="w">            </span><span class="p">},</span>
+<span class="w">            </span><span class="n">cost</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">_hidden_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;response_cost&quot;</span><span class="p">),</span>
+<span class="w">            </span><span class="n">latency_ms</span><span class="o">=</span><span class="n">latency_ms</span><span class="p">,</span>
+<span class="w">            </span><span class="n">raw_response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
+<span class="w">        </span><span class="p">)</span>
+
+<span class="w">    </span><span class="err">@</span><span class="n">overload</span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">complete_structured</span><span class="p">(</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="n">messages</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="p">[</span><span class="n">dict</span><span class="p">],</span>
+<span class="w">        </span><span class="n">response_model</span><span class="p">:</span><span class="w"> </span><span class="n">Type</span><span class="p">[</span><span class="n">T</span><span class="p">],</span>
+<span class="w">        </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">        </span><span class="o">*</span><span class="p">,</span>
+<span class="w">        </span><span class="n">max_retries</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb nb-Type">int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">        </span><span class="n">temperature</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
+<span class="w">        </span><span class="n">include_metadata</span><span class="p">:</span><span class="w"> </span><span class="n">Literal</span><span class="p">[</span><span class="n">False</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">False</span><span class="p">,</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">T</span><span class="p">:</span><span class="w"> </span><span class="o">...</span>
+
+<span class="w">    </span><span class="err">@</span><span class="n">overload</span>
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">complete_structured</span><span class="p">(</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="n">messages</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="p">[</span><span class="n">dict</span><span class="p">],</span>
+<span class="w">        </span><span class="n">response_model</span><span class="p">:</span><span class="w"> </span><span class="n">Type</span><span class="p">[</span><span class="n">T</span><span class="p">],</span>
+<span class="w">        </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">        </span><span class="o">*</span><span class="p">,</span>
+<span class="w">        </span><span class="n">max_retries</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb nb-Type">int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">        </span><span class="n">temperature</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
+<span class="w">        </span><span class="n">include_metadata</span><span class="p">:</span><span class="w"> </span><span class="n">Literal</span><span class="p">[</span><span class="n">True</span><span class="p">],</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Tuple</span><span class="p">[</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">LLMResponse</span><span class="p">]:</span><span class="w"> </span><span class="o">...</span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">complete_structured</span><span class="p">(</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="n">messages</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="p">[</span><span class="n">dict</span><span class="p">],</span>
+<span class="w">        </span><span class="n">response_model</span><span class="p">:</span><span class="w"> </span><span class="n">Type</span><span class="p">[</span><span class="n">T</span><span class="p">],</span>
+<span class="w">        </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">        </span><span class="o">*</span><span class="p">,</span>
+<span class="w">        </span><span class="n">max_retries</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb nb-Type">int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">        </span><span class="n">temperature</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
+<span class="w">        </span><span class="n">include_metadata</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">bool</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">False</span><span class="p">,</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Union</span><span class="p">[</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">Tuple</span><span class="p">[</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">LLMResponse</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Completion with Pydantic structured output.</span>
+
+<span class="sd">        Args:</span>
+<span class="sd">            include_metadata: If True, returns (model, LLMResponse) tuple</span>
+<span class="sd">                              for access to cost/usage data.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">model</span>
+<span class="w">        </span><span class="n">max_retries</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">max_retries</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">structured_validation_retries</span>
+
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">include_metadata</span><span class="p">:</span>
+<span class="w">            </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+<span class="w">            </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">raw</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_instructor</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create_with_completion</span><span class="p">(</span>
+<span class="w">                </span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="w">                </span><span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+<span class="w">                </span><span class="n">response_model</span><span class="o">=</span><span class="n">response_model</span><span class="p">,</span>
+<span class="w">                </span><span class="n">max_retries</span><span class="o">=</span><span class="n">max_retries</span><span class="p">,</span>
+<span class="w">                </span><span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="n">latency_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span>
+
+<span class="w">            </span><span class="n">metadata</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">LLMResponse</span><span class="p">(</span>
+<span class="w">                </span><span class="n">content</span><span class="o">=</span><span class="n">raw</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">                </span><span class="n">model</span><span class="o">=</span><span class="n">raw</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+<span class="w">                </span><span class="n">usage</span><span class="o">=</span><span class="p">{</span>
+<span class="w">                    </span><span class="s2">&quot;prompt_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">raw</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">prompt_tokens</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">&quot;completion_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">raw</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">completion_tokens</span><span class="p">,</span>
+<span class="w">                    </span><span class="s2">&quot;total_tokens&quot;</span><span class="p">:</span><span class="w"> </span><span class="n">raw</span><span class="o">.</span><span class="n">usage</span><span class="o">.</span><span class="n">total_tokens</span><span class="p">,</span>
+<span class="w">                </span><span class="p">},</span>
+<span class="w">                </span><span class="n">cost</span><span class="o">=</span><span class="n">raw</span><span class="o">.</span><span class="n">_hidden_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;response_cost&quot;</span><span class="p">),</span>
+<span class="w">                </span><span class="n">latency_ms</span><span class="o">=</span><span class="n">latency_ms</span><span class="p">,</span>
+<span class="w">                </span><span class="n">raw_response</span><span class="o">=</span><span class="n">raw</span><span class="p">,</span>
+<span class="w">            </span><span class="p">)</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="n">metadata</span>
+<span class="w">        </span><span class="k">else</span><span class="p">:</span>
+<span class="w">            </span><span class="k">return</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">_instructor</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+<span class="w">                </span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="w">                </span><span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+<span class="w">                </span><span class="n">response_model</span><span class="o">=</span><span class="n">response_model</span><span class="p">,</span>
+<span class="w">                </span><span class="n">max_retries</span><span class="o">=</span><span class="n">max_retries</span><span class="p">,</span>
+<span class="w">                </span><span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+<span class="w">            </span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">complete_with_tools</span><span class="p">(</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="n">messages</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="p">[</span><span class="n">dict</span><span class="p">],</span>
+<span class="w">        </span><span class="n">tools</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="p">[</span><span class="n">Type</span><span class="p">[</span><span class="n">BaseModel</span><span class="p">]],</span>
+<span class="w">        </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">        </span><span class="o">*</span><span class="p">,</span>
+<span class="w">        </span><span class="n">tool_choice</span><span class="p">:</span><span class="w"> </span><span class="nb">str</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s2">&quot;auto&quot;</span><span class="p">,</span>
+<span class="w">        </span><span class="n">temperature</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
+<span class="w">        </span><span class="n">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb nb-Type">int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">ToolResponse</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Completion with tool calling.</span>
+
+<span class="sd">        IMPORTANT: This method returns tool call requests but does NOT execute them.</span>
+<span class="sd">        The caller is responsible for executing tools and continuing the conversation.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">model</span>
+
+<span class="w">        </span><span class="c1"># Convert Pydantic models to OpenAI tool format</span>
+<span class="w">        </span><span class="n">tool_schemas</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span><span class="n">pydantic_to_tool_schema</span><span class="p">(</span><span class="n">t</span><span class="p">)</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">tools</span><span class="p">]</span>
+
+<span class="w">        </span><span class="n">start</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span>
+<span class="w">        </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">completion</span><span class="p">(</span>
+<span class="w">            </span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="w">            </span><span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+<span class="w">            </span><span class="n">tools</span><span class="o">=</span><span class="n">tool_schemas</span><span class="p">,</span>
+<span class="w">            </span><span class="n">tool_choice</span><span class="o">=</span><span class="n">tool_choice</span><span class="p">,</span>
+<span class="w">            </span><span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+<span class="w">            </span><span class="n">max_tokens</span><span class="o">=</span><span class="n">max_tokens</span><span class="p">,</span>
+<span class="w">            </span><span class="n">num_retries</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">retries</span><span class="p">,</span>
+<span class="w">        </span><span class="p">)</span>
+<span class="w">        </span><span class="n">latency_ms</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">perf_counter</span><span class="p">()</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">start</span><span class="p">)</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="mi">1000</span>
+
+<span class="w">        </span><span class="c1"># Parse tool calls from response</span>
+<span class="w">        </span><span class="n">tool_calls</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[]</span>
+<span class="w">        </span><span class="k">if</span><span class="w"> </span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+<span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="n">tc</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">tool_calls</span><span class="p">:</span>
+<span class="w">                </span><span class="n">tool_calls</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ToolCall</span><span class="p">(</span>
+<span class="w">                    </span><span class="n">id</span><span class="o">=</span><span class="n">tc</span><span class="o">.</span><span class="n">id</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">name</span><span class="o">=</span><span class="n">tc</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">name</span><span class="p">,</span>
+<span class="w">                    </span><span class="n">arguments</span><span class="o">=</span><span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">tc</span><span class="o">.</span><span class="n">function</span><span class="o">.</span><span class="n">arguments</span><span class="p">),</span>
+<span class="w">                </span><span class="p">))</span>
+
+<span class="w">        </span><span class="k">return</span><span class="w"> </span><span class="n">ToolResponse</span><span class="p">(</span>
+<span class="w">            </span><span class="n">content</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">message</span><span class="o">.</span><span class="n">content</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="s2">&quot;&quot;</span><span class="p">,</span>
+<span class="w">            </span><span class="n">model</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">model</span><span class="p">,</span>
+<span class="w">            </span><span class="n">usage</span><span class="o">=</span><span class="p">{</span><span class="o">...</span><span class="p">},</span>
+<span class="w">            </span><span class="n">cost</span><span class="o">=</span><span class="n">response</span><span class="o">.</span><span class="n">_hidden_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;response_cost&quot;</span><span class="p">),</span>
+<span class="w">            </span><span class="n">latency_ms</span><span class="o">=</span><span class="n">latency_ms</span><span class="p">,</span>
+<span class="w">            </span><span class="n">raw_response</span><span class="o">=</span><span class="n">response</span><span class="p">,</span>
+<span class="w">            </span><span class="n">tool_calls</span><span class="o">=</span><span class="n">tool_calls</span><span class="p">,</span>
+<span class="w">        </span><span class="p">)</span>
+
+<span class="w">    </span><span class="n">def</span><span class="w"> </span><span class="n">stream</span><span class="p">(</span>
+<span class="w">        </span><span class="bp">self</span><span class="p">,</span>
+<span class="w">        </span><span class="n">messages</span><span class="p">:</span><span class="w"> </span><span class="n">List</span><span class="p">[</span><span class="n">dict</span><span class="p">],</span>
+<span class="w">        </span><span class="n">model</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">        </span><span class="o">*</span><span class="p">,</span>
+<span class="w">        </span><span class="n">temperature</span><span class="p">:</span><span class="w"> </span><span class="nb nb-Type">float</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mf">0.7</span><span class="p">,</span>
+<span class="w">        </span><span class="n">max_tokens</span><span class="p">:</span><span class="w"> </span><span class="n">Optional</span><span class="p">[</span><span class="nb nb-Type">int</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">None</span><span class="p">,</span>
+<span class="w">    </span><span class="p">)</span><span class="w"> </span><span class="o">-&gt;</span><span class="w"> </span><span class="n">Iterator</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Stream text completion. Returns Iterator[str] of text chunks.</span>
+
+<span class="sd">        NOTE: Streaming does NOT support tools or structured output in v1.0.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+<span class="w">        </span><span class="n">model</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">model</span><span class="w"> </span><span class="ow">or</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">config</span><span class="o">.</span><span class="n">model</span>
+
+<span class="w">        </span><span class="n">response</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">completion</span><span class="p">(</span>
+<span class="w">            </span><span class="n">model</span><span class="o">=</span><span class="n">model</span><span class="p">,</span>
+<span class="w">            </span><span class="n">messages</span><span class="o">=</span><span class="n">messages</span><span class="p">,</span>
+<span class="w">            </span><span class="n">temperature</span><span class="o">=</span><span class="n">temperature</span><span class="p">,</span>
+<span class="w">            </span><span class="n">max_tokens</span><span class="o">=</span><span class="n">max_tokens</span><span class="p">,</span>
+<span class="w">            </span><span class="n">stream</span><span class="o">=</span><span class="n">True</span><span class="p">,</span>
+<span class="w">        </span><span class="p">)</span>
+
+<span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="n">chunk</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">response</span><span class="p">:</span>
+<span class="w">            </span><span class="k">if</span><span class="w"> </span><span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span><span class="p">:</span>
+<span class="w">                </span><span class="nb">yield</span><span class="w"> </span><span class="n">chunk</span><span class="o">.</span><span class="n">choices</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">delta</span><span class="o">.</span><span class="n">content</span>
+</code></pre></div>
+
+<hr />
+<h2 id="9-dependencies-integration">9. Dependencies &amp; Integration<a class="headerlink" href="#9-dependencies-integration" title="Permanent link">&para;</a></h2>
+<h3 id="91-required-dependencies">9.1 Required Dependencies<a class="headerlink" href="#91-required-dependencies" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="n">dependencies</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">[</span>
+<span class="w">    </span><span class="s2">&quot;litellm&gt;=1.50.0,&lt;2.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;instructor&gt;=1.5.0,&lt;2.0.0&quot;</span><span class="p">,</span>
+<span class="w">    </span><span class="s2">&quot;pydantic&gt;=2.0.0,&lt;3.0.0&quot;</span><span class="p">,</span>
+<span class="p">]</span>
+</code></pre></div>
+
+<p><strong>Version Pinning Rationale</strong>:
+- Major version pins prevent breaking changes
+- Minor version floor ensures required features
+- Both LiteLLM and Instructor are actively developed</p>
+<h3 id="92-environment-variables">9.2 Environment Variables<a class="headerlink" href="#92-environment-variables" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># At least one provider required</span>
+<span class="nv">OPENAI_API_KEY</span><span class="o">=</span>sk-...
+<span class="nv">ANTHROPIC_API_KEY</span><span class="o">=</span>sk-ant-...
+<span class="nv">GOOGLE_API_KEY</span><span class="o">=</span>...
+
+<span class="c1"># Optional</span>
+<span class="nv">LITELLM_LOG</span><span class="o">=</span>DEBUG<span class="w">  </span><span class="c1"># Enable debug logging</span>
+</code></pre></div>
+
+<hr />
+<h2 id="10-testing-strategy">10. Testing Strategy<a class="headerlink" href="#10-testing-strategy" title="Permanent link">&para;</a></h2>
+<h3 id="101-unit-tests-mocked">10.1 Unit Tests (Mocked)<a class="headerlink" href="#101-unit-tests-mocked" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># tests/llm/test_client.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">unittest.mock</span><span class="w"> </span><span class="kn">import</span> <span class="n">patch</span><span class="p">,</span> <span class="n">MagicMock</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">test_complete_returns_response</span><span class="p">():</span>
+    <span class="k">with</span> <span class="n">patch</span><span class="p">(</span><span class="s2">&quot;litellm.completion&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">mock</span><span class="p">:</span>
+        <span class="n">mock</span><span class="o">.</span><span class="n">return_value</span> <span class="o">=</span> <span class="n">MagicMock</span><span class="p">(</span>
+            <span class="n">choices</span><span class="o">=</span><span class="p">[</span><span class="n">MagicMock</span><span class="p">(</span><span class="n">message</span><span class="o">=</span><span class="n">MagicMock</span><span class="p">(</span><span class="n">content</span><span class="o">=</span><span class="s2">&quot;Hello!&quot;</span><span class="p">))],</span>
+            <span class="n">model</span><span class="o">=</span><span class="s2">&quot;gpt-4o&quot;</span><span class="p">,</span>
+            <span class="n">usage</span><span class="o">=</span><span class="n">MagicMock</span><span class="p">(</span><span class="n">prompt_tokens</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">completion_tokens</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">total_tokens</span><span class="o">=</span><span class="mi">15</span><span class="p">),</span>
+            <span class="n">_hidden_params</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;response_cost&quot;</span><span class="p">:</span> <span class="mf">0.001</span><span class="p">}</span>
+        <span class="p">)</span>
+
+        <span class="n">client</span> <span class="o">=</span> <span class="n">LLM</span><span class="p">()</span>
+        <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span>
+            <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span><span class="p">,</span>
+            <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Hi&quot;</span><span class="p">}]</span>
+        <span class="p">)</span>
+
+        <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span> <span class="o">==</span> <span class="s2">&quot;Hello!&quot;</span>
+        <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">cost</span> <span class="o">==</span> <span class="mf">0.001</span>
+</code></pre></div>
+
+<h3 id="102-integration-tests-real-apis">10.2 Integration Tests (Real APIs)<a class="headerlink" href="#102-integration-tests-real-apis" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># tests/llm/test_integration.py</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">pytest</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
+
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">integration</span>
+<span class="nd">@pytest</span><span class="o">.</span><span class="n">mark</span><span class="o">.</span><span class="n">skipif</span><span class="p">(</span><span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;OPENAI_API_KEY&quot;</span><span class="p">),</span> <span class="n">reason</span><span class="o">=</span><span class="s2">&quot;No API key&quot;</span><span class="p">)</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">test_openai_real_completion</span><span class="p">():</span>
+    <span class="n">client</span> <span class="o">=</span> <span class="n">LLM</span><span class="p">()</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">complete</span><span class="p">(</span>
+        <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o-mini&quot;</span><span class="p">,</span>
+        <span class="n">messages</span><span class="o">=</span><span class="p">[{</span><span class="s2">&quot;role&quot;</span><span class="p">:</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;content&quot;</span><span class="p">:</span> <span class="s2">&quot;Say &#39;test&#39;&quot;</span><span class="p">}],</span>
+        <span class="n">max_tokens</span><span class="o">=</span><span class="mi">10</span>
+    <span class="p">)</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">content</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="k">assert</span> <span class="n">response</span><span class="o">.</span><span class="n">cost</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+</code></pre></div>
+
+<h3 id="103-coverage-targets">10.3 Coverage Targets<a class="headerlink" href="#103-coverage-targets" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Component</th>
+<th>Target</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Client methods</td>
+<td>90%+</td>
+</tr>
+<tr>
+<td>Response types</td>
+<td>95%+</td>
+</tr>
+<tr>
+<td>Tool conversion</td>
+<td>95%+</td>
+</tr>
+<tr>
+<td>Error handling</td>
+<td>90%+</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="11-risks-mitigations">11. Risks &amp; Mitigations<a class="headerlink" href="#11-risks-mitigations" title="Permanent link">&para;</a></h2>
+<h3 id="111-technical-risks">11.1 Technical Risks<a class="headerlink" href="#111-technical-risks" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Impact</th>
+<th>Likelihood</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>LiteLLM breaking changes</td>
+<td>High</td>
+<td>Medium</td>
+<td>Pin versions, monitor releases, integration tests in CI</td>
+</tr>
+<tr>
+<td>Instructor breaking changes</td>
+<td>High</td>
+<td>Medium</td>
+<td>Pin versions, test upgrades before adopting</td>
+</tr>
+<tr>
+<td>Provider API changes</td>
+<td>Medium</td>
+<td>High</td>
+<td>LiteLLM handles this - that's why we use it</td>
+</tr>
+<tr>
+<td>Instructor + LiteLLM incompatibility</td>
+<td>Medium</td>
+<td>Low</td>
+<td>Use <code>from_litellm()</code> only, avoid <code>from_provider()</code></td>
+</tr>
+<tr>
+<td>Azure cost tracking inaccuracy</td>
+<td>Medium</td>
+<td>High</td>
+<td>Document <code>base_model</code> requirement, validate in tests</td>
+</tr>
+<tr>
+<td>Streaming + tools bugs</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Keep streaming text-only in v1.0 (validated decision)</td>
+</tr>
+<tr>
+<td><code>from_provider()</code> instability</td>
+<td>Medium</td>
+<td>Medium</td>
+<td>Use <code>from_litellm()</code> pattern exclusively</td>
+</tr>
+</tbody>
+</table>
+<h3 id="112-known-issues-from-research">11.2 Known Issues from Research<a class="headerlink" href="#112-known-issues-from-research" title="Permanent link">&para;</a></h3>
+<ol>
+<li>
+<p><strong><code>instructor.from_provider("litellm/...")</code></strong> - Had issues until recently (<a href="https://github.com/567-labs/instructor/issues/1710">GitHub #1710</a>). Use <code>instructor.from_litellm(completion)</code> instead.</p>
+</li>
+<li>
+<p><strong>Claude streaming + tool calls</strong> - Had bugs in LiteLLM &lt; v1.31.6 (<a href="https://github.com/BerriAI/litellm/issues/2435">GitHub #2435</a>). Now fixed, but validates our decision to keep streaming separate from tools.</p>
+</li>
+<li>
+<p><strong>Azure cost tracking</strong> - Returns generic model names causing wrong cost calculation. Requires <code>base_model</code> configuration.</p>
+</li>
+<li>
+<p><strong>Bedrock parameter issues</strong> - May need <code>litellm.drop_params=True</code> for unsupported parameters.</p>
+</li>
+</ol>
+<h3 id="113-scope-creep">11.3 Scope Creep<a class="headerlink" href="#113-scope-creep" title="Permanent link">&para;</a></h3>
+<p><strong>Mitigation</strong>:
+- Strict adherence to non-goals
+- Streaming limited to text-only in v1.0
+- Tool execution is explicitly out of scope (agent territory)
+- Feature requests go to backlog</p>
+<hr />
+<h2 id="12-success-criteria">12. Success Criteria<a class="headerlink" href="#12-success-criteria" title="Permanent link">&para;</a></h2>
+<h3 id="121-functional-criteria">12.1 Functional Criteria<a class="headerlink" href="#121-functional-criteria" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Make completion calls to OpenAI, Anthropic, Google</li>
+<li>[ ] Extract structured output with Pydantic models</li>
+<li>[ ] Stream text responses (sync and async)</li>
+<li>[ ] Define tools via Pydantic models</li>
+<li>[ ] Handle tool calls in responses</li>
+<li>[ ] Retry on transient failures</li>
+<li>[ ] Track cost per call</li>
+<li>[ ] Support both sync and async usage</li>
+</ul>
+<h3 id="122-quality-criteria">12.2 Quality Criteria<a class="headerlink" href="#122-quality-criteria" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] 85%+ test coverage</li>
+<li>[ ] All public methods have docstrings</li>
+<li>[ ] Type hints on all public interfaces</li>
+<li>[ ] No type errors with <code>mypy --strict</code></li>
+<li>[ ] README with 30-second quick start</li>
+<li>[ ] Working examples for each feature</li>
+</ul>
+<h3 id="123-usability-criteria">12.3 Usability Criteria<a class="headerlink" href="#123-usability-criteria" title="Permanent link">&para;</a></h3>
+<ul>
+<li>[ ] Install works with single pip command</li>
+<li>[ ] Works immediately with env vars set</li>
+<li>[ ] Examples are copy-paste runnable</li>
+<li>[ ] Error messages are helpful</li>
+</ul>
+<hr />
+<h2 id="13-timeline-milestones">13. Timeline &amp; Milestones<a class="headerlink" href="#13-timeline-milestones" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Week</th>
+<th>Milestone</th>
+<th>Deliverables</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Core + Structured</td>
+<td>Basic clients, complete(), complete_structured()</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Tools + Streaming</td>
+<td>complete_with_tools(), stream()</td>
+</tr>
+<tr>
+<td>3</td>
+<td>Polish</td>
+<td>Documentation, examples, testing</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Release</td>
+<td>v0.1.0, integration tests, README</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Total Duration</strong>: 4 weeks</p>
+<hr />
+<h2 id="14-appendix">14. Appendix<a class="headerlink" href="#14-appendix" title="Permanent link">&para;</a></h2>
+<h3 id="141-litellm-model-formats">14.1 LiteLLM Model Formats<a class="headerlink" href="#141-litellm-model-formats" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Provider</th>
+<th>Format</th>
+<th>Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>OpenAI</td>
+<td><code>openai/&lt;model&gt;</code></td>
+<td><code>openai/gpt-4o</code></td>
+</tr>
+<tr>
+<td>Anthropic</td>
+<td><code>anthropic/&lt;model&gt;</code></td>
+<td><code>anthropic/claude-3-5-sonnet-latest</code></td>
+</tr>
+<tr>
+<td>Google</td>
+<td><code>gemini/&lt;model&gt;</code></td>
+<td><code>gemini/gemini-1.5-pro</code></td>
+</tr>
+<tr>
+<td>Azure</td>
+<td><code>azure/&lt;deployment&gt;</code></td>
+<td><code>azure/my-gpt4-deployment</code></td>
+</tr>
+<tr>
+<td>Bedrock</td>
+<td><code>bedrock/&lt;model&gt;</code></td>
+<td><code>bedrock/anthropic.claude-3-sonnet</code></td>
+</tr>
+<tr>
+<td>Ollama</td>
+<td><code>ollama/&lt;model&gt;</code></td>
+<td><code>ollama/llama3</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="142-instructor-integration-pattern">14.2 Instructor Integration Pattern<a class="headerlink" href="#142-instructor-integration-pattern" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Sync client</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">litellm</span><span class="w"> </span><span class="kn">import</span> <span class="n">completion</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">instructor</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_litellm</span><span class="p">(</span><span class="n">completion</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">],</span>
+    <span class="n">response_model</span><span class="o">=</span><span class="n">MyModel</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Async client</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">litellm</span><span class="w"> </span><span class="kn">import</span> <span class="n">acompletion</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">instructor</span>
+
+<span class="n">client</span> <span class="o">=</span> <span class="n">instructor</span><span class="o">.</span><span class="n">from_litellm</span><span class="p">(</span><span class="n">acompletion</span><span class="p">)</span>
+<span class="n">result</span> <span class="o">=</span> <span class="k">await</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">model</span><span class="o">=</span><span class="s2">&quot;openai/gpt-4o&quot;</span><span class="p">,</span>
+    <span class="n">messages</span><span class="o">=</span><span class="p">[</span><span class="o">...</span><span class="p">],</span>
+    <span class="n">response_model</span><span class="o">=</span><span class="n">MyModel</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="c1"># Get cost with structured output</span>
+<span class="n">result</span><span class="p">,</span> <span class="n">raw</span> <span class="o">=</span> <span class="n">client</span><span class="o">.</span><span class="n">chat</span><span class="o">.</span><span class="n">completions</span><span class="o">.</span><span class="n">create_with_completion</span><span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="n">cost</span> <span class="o">=</span> <span class="n">raw</span><span class="o">.</span><span class="n">_hidden_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;response_cost&quot;</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="143-exception-handling">14.3 Exception Handling<a class="headerlink" href="#143-exception-handling" title="Permanent link">&para;</a></h3>
+<p>LiteLLM maps provider exceptions to OpenAI-style:</p>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">litellm.exceptions</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">RateLimitError</span><span class="p">,</span>           <span class="c1"># 429</span>
+    <span class="n">AuthenticationError</span><span class="p">,</span>       <span class="c1"># 401</span>
+    <span class="n">BadRequestError</span><span class="p">,</span>           <span class="c1"># 400</span>
+    <span class="n">Timeout</span><span class="p">,</span>                   <span class="c1"># Timeout</span>
+    <span class="n">APIConnectionError</span><span class="p">,</span>        <span class="c1"># Network issues</span>
+    <span class="n">ServiceUnavailableError</span><span class="p">,</span>   <span class="c1"># 503</span>
+    <span class="n">ContentPolicyViolationError</span><span class="p">,</span>
+    <span class="n">ContextWindowExceededError</span><span class="p">,</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="144-references">14.4 References<a class="headerlink" href="#144-references" title="Permanent link">&para;</a></h3>
+<ul>
+<li><a href="https://docs.litellm.ai/">LiteLLM Documentation</a></li>
+<li><a href="https://docs.litellm.ai/docs/tutorials/instructor">LiteLLM + Instructor Tutorial</a></li>
+<li><a href="https://python.useinstructor.com/">Instructor Documentation</a></li>
+<li><a href="https://python.useinstructor.com/integrations/litellm/">Instructor LiteLLM Integration</a></li>
+<li><a href="https://docs.pydantic.dev/">Pydantic Documentation</a></li>
+</ul>
+<hr />
+<h2 id="document-history">Document History<a class="headerlink" href="#document-history" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Version</th>
+<th>Date</th>
+<th>Author</th>
+<th>Changes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1.0</td>
+<td>Nov 2025</td>
+<td>Tawab Safi</td>
+<td>Initial draft</td>
+</tr>
+<tr>
+<td>2.0</td>
+<td>Nov 2025</td>
+<td>Tawab Safi</td>
+<td>Updated based on research: Chat Completions API, monolithic packaging, simplified streaming, sync/async clients</td>
+</tr>
+<tr>
+<td>3.0</td>
+<td>Nov 2025</td>
+<td>Tawab Safi</td>
+<td>Comprehensive update: clarified tool execution design (client returns, doesn't execute), added <code>include_metadata</code> for structured output, documented <code>from_litellm()</code> vs <code>from_provider()</code> issues, added fallback support, Azure cost tracking caveats, expanded retry documentation, added known issues from research</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="15-component-relationship-diagram">15. Component Relationship Diagram<a class="headerlink" href="#15-component-relationship-diagram" title="Permanent link">&para;</a></h2>
+<p>This diagram shows how the Universal LLM Client fits into the larger AI components ecosystem:</p>
+<div class="codehilite"><pre><span></span><code><span class="err">┌─────────────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                         </span><span class="n">Your</span><span class="w"> </span><span class="n">Application</span><span class="w">                                 </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────────────────┘</span>
+<span class="w">                                    </span><span class="err">│</span>
+<span class="w">                                    </span><span class="err">▼</span>
+<span class="err">┌─────────────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                    </span><span class="n">Agent</span><span class="w"> </span><span class="o">/</span><span class="w"> </span><span class="n">Tool</span><span class="w"> </span><span class="n">Orchestrator</span><span class="w">                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                    </span><span class="p">(</span><span class="n">FUTURE</span><span class="w"> </span><span class="n">COMPONENT</span><span class="p">)</span><span class="w">                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                          </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Responsibilities</span><span class="p">:</span><span class="w">                                                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Tool</span><span class="w"> </span><span class="n">registry</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">dispatch</span><span class="w">                                              </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Agent</span><span class="w"> </span><span class="n">loop</span><span class="w"> </span><span class="p">(</span><span class="n">call</span><span class="w"> </span><span class="n">LLM</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">execute</span><span class="w"> </span><span class="n">tools</span><span class="w"> </span><span class="err">→</span><span class="w"> </span><span class="n">repeat</span><span class="p">)</span><span class="w">                        </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Conversation</span><span class="w"> </span><span class="n">memory</span><span class="w">                                                   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Permission</span><span class="o">/</span><span class="n">safety</span><span class="w"> </span><span class="n">checks</span><span class="w">                                              </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Error</span><span class="w"> </span><span class="n">handling</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">recovery</span><span class="w">                                             </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────────────────┘</span>
+<span class="w">                                    </span><span class="err">│</span>
+<span class="w">                                    </span><span class="err">▼</span>
+<span class="err">┌─────────────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                    </span><span class="n">Universal</span><span class="w"> </span><span class="n">LLM</span><span class="w"> </span><span class="n">Client</span><span class="w">                                  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                    </span><span class="p">(</span><span class="n">THIS</span><span class="w"> </span><span class="n">COMPONENT</span><span class="p">)</span><span class="w">                                      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                          </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Responsibilities</span><span class="p">:</span><span class="w">                                                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Send</span><span class="w"> </span><span class="n">messages</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">LLMs</span><span class="w">                                                 </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Return</span><span class="w"> </span><span class="n">responses</span><span class="w"> </span><span class="p">(</span><span class="n">text</span><span class="p">,</span><span class="w"> </span><span class="n">structured</span><span class="p">,</span><span class="w"> </span><span class="k">tool</span><span class="w"> </span><span class="n">calls</span><span class="p">)</span><span class="w">                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Handle</span><span class="w"> </span><span class="n">retries</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">fallbacks</span><span class="w">                                            </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Track</span><span class="w"> </span><span class="n">cost</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">usage</span><span class="w">                                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Stream</span><span class="w"> </span><span class="n">text</span><span class="w"> </span><span class="n">responses</span><span class="w">                                                 </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                          </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">Does</span><span class="w"> </span><span class="n">NOT</span><span class="p">:</span><span class="w">                                                               </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Execute</span><span class="w"> </span><span class="k">tool</span><span class="w"> </span><span class="n">calls</span><span class="w">                                                    </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Manage</span><span class="w"> </span><span class="n">conversation</span><span class="w"> </span><span class="n">state</span><span class="w">                                             </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">•</span><span class="w"> </span><span class="n">Run</span><span class="w"> </span><span class="n">agent</span><span class="w"> </span><span class="n">loops</span><span class="w">                                                       </span><span class="err">│</span>
+<span class="err">└─────────────────────────────────────────────────────────────────────────┘</span>
+<span class="w">                                    </span><span class="err">│</span>
+<span class="w">                    </span><span class="err">┌───────────────┴───────────────┐</span>
+<span class="w">                    </span><span class="err">▼</span><span class="w">                               </span><span class="err">▼</span>
+<span class="w">        </span><span class="err">┌─────────────────────┐</span><span class="w">         </span><span class="err">┌─────────────────────┐</span>
+<span class="w">        </span><span class="err">│</span><span class="w">     </span><span class="n">Instructor</span><span class="w">      </span><span class="err">│</span><span class="w">         </span><span class="err">│</span><span class="w">      </span><span class="n">LiteLLM</span><span class="w">        </span><span class="err">│</span>
+<span class="w">        </span><span class="err">│</span><span class="w">  </span><span class="p">(</span><span class="n">structured</span><span class="w"> </span><span class="n">out</span><span class="p">)</span><span class="w">   </span><span class="err">│◄────────│</span><span class="w">  </span><span class="p">(</span><span class="n">provider</span><span class="w"> </span><span class="n">API</span><span class="p">)</span><span class="w">     </span><span class="err">│</span>
+<span class="w">        </span><span class="err">└─────────────────────┘</span><span class="w">         </span><span class="err">└─────────────────────┘</span>
+<span class="w">                                                </span><span class="err">│</span>
+<span class="w">                        </span><span class="err">┌───────────────────────┼───────────────────────┐</span>
+<span class="w">                        </span><span class="err">▼</span><span class="w">                       </span><span class="err">▼</span><span class="w">                       </span><span class="err">▼</span>
+<span class="w">                 </span><span class="err">┌──────────┐</span><span class="w">            </span><span class="err">┌──────────┐</span><span class="w">            </span><span class="err">┌──────────┐</span>
+<span class="w">                 </span><span class="err">│</span><span class="w">  </span><span class="n">OpenAI</span><span class="w">  </span><span class="err">│</span><span class="w">            </span><span class="err">│</span><span class="w"> </span><span class="n">Anthropic</span><span class="err">│</span><span class="w">            </span><span class="err">│</span><span class="w">  </span><span class="n">Google</span><span class="w">  </span><span class="err">│</span>
+<span class="w">                 </span><span class="err">└──────────┘</span><span class="w">            </span><span class="err">└──────────┘</span><span class="w">            </span><span class="err">└──────────┘</span>
+</code></pre></div>
+
+<p><strong>Key Insight:</strong> The Universal LLM Client is intentionally "dumb" about tools. It tells you what the model wants to call, but executing those tools is your responsibility (or the responsibility of an Agent component built on top).</p>
+<hr />
+<p><em>This PRD is a living document. Update as requirements evolve during implementation.</em></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.instant", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

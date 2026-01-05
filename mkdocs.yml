@@ -1,0 +1,48 @@
+site_name: RawAgents
+site_description: Raw primitives and explicit loops for AI agents.
+site_url: https://tawab-safi.github.io/rawagents/
+repo_url: https://github.com/tawab-safi/rawagents
+repo_name: tawab-safi/rawagents
+
+theme:
+  name: material
+  language: en
+  features:
+    - navigation.sections
+    - navigation.top
+    - navigation.instant
+    - search.highlight
+    - search.suggest
+    - content.code.copy
+
+nav:
+  - Home: index.md
+  - Getting started: getting-started.md
+  - Concepts:
+      - Architecture: rawagents.md
+      - Philosophy: rawagents_philosophy.md
+      - Issues with Agent Frameworks: issues_with_agent_frameworks.md
+  - Components:
+      - LLM: components/llm.md
+      - State: components/state.md
+      - Tools: components/tools.md
+      - Loops: components/loops.md
+      - Prompts: components/prompts.md
+  - Recipes:
+      - Basic chat bot: recipes/basic_chat_bot.md
+      - Tool-using assistant: recipes/tool_using_assistant.md
+      - Human-in-the-loop: recipes/human_in_the_loop.md
+      - Stateful researcher: recipes/stateful_researcher.md
+      - Streaming API server: recipes/streaming_api_server.md
+
+markdown_extensions:
+  - admonition
+  - codehilite
+  - footnotes
+  - toc:
+      permalink: true
+
+plugins:
+  - search
+
+

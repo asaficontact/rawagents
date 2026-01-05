@@ -1,0 +1,1273 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Raw primitives and explicit loops for AI agents.">
+      
+      
+      
+        <link rel="canonical" href="https://tawab-safi.github.io/rawagents/components/conversation/">
+      
+      
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Product Requirements Document (PRD) - RawAgents</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#product-requirements-document-prd" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="RawAgents" class="md-header__button md-logo" aria-label="RawAgents" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            RawAgents
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Product Requirements Document (PRD)
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tawab-safi/rawagents" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tawab-safi/rawagents
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="RawAgents" class="md-nav__button md-logo" aria-label="RawAgents" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    RawAgents
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tawab-safi/rawagents" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tawab-safi/rawagents
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rawagents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rawagents_philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../issues_with_agent_frameworks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issues with Agent Frameworks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Components
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../loops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../prompts/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recipes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Recipes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/basic_chat_bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic chat bot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/tool_using_assistant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool-using assistant
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/human_in_the_loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/stateful_researcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stateful researcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/streaming_api_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming API server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="product-requirements-document-prd">Product Requirements Document (PRD)<a class="headerlink" href="#product-requirements-document-prd" title="Permanent link">&para;</a></h1>
+<h1 id="ai-components-library-conversation-component">AI Components Library - Conversation Component<a class="headerlink" href="#ai-components-library-conversation-component" title="Permanent link">&para;</a></h1>
+<p><strong>Version:</strong> 2.0
+<strong>Date:</strong> November 2025
+<strong>Status:</strong> Final Draft
+<strong>Author:</strong> Tawab Safi</p>
+<hr />
+<h2 id="table-of-contents">Table of Contents<a class="headerlink" href="#table-of-contents" title="Permanent link">&para;</a></h2>
+<ol>
+<li><a href="#1-executive-summary">Executive Summary</a></li>
+<li><a href="#2-background--motivation">Background &amp; Motivation</a></li>
+<li><a href="#3-goals--non-goals">Goals &amp; Non-Goals</a></li>
+<li><a href="#4-technical-architecture">Technical Architecture</a></li>
+<li><a href="#5-detailed-requirements">Detailed Requirements</a></li>
+<li><a href="#6-api-design">API Design</a></li>
+<li><a href="#7-project-structure">Project Structure</a></li>
+<li><a href="#8-implementation-approach">Implementation Approach</a></li>
+<li><a href="#9-risks--mitigations">Risks &amp; Mitigations</a></li>
+<li><a href="#10-success-criteria">Success Criteria</a></li>
+<li><a href="#11-timeline">Timeline</a></li>
+<li><a href="#12-component-relationship-diagram">Component Relationship Diagram</a></li>
+</ol>
+<hr />
+<h2 id="1-executive-summary">1. Executive Summary<a class="headerlink" href="#1-executive-summary" title="Permanent link">&para;</a></h2>
+<h3 id="11-what-were-building">1.1 What We're Building<a class="headerlink" href="#11-what-were-building" title="Permanent link">&para;</a></h3>
+<p>The <strong>Conversation Component</strong> (<code>rawagents.conversation</code>) is a "smart container" for managing agent memory and state. It serves as the <strong>operating system for context</strong>, managing the timeline of messages, tool calls, and structured outputs between a user and an LLM.</p>
+<p>Unlike a simple list of dictionaries, this component provides:
+- <strong>Canonical Data Model</strong>: Strongly-typed Pydantic models for <code>Message</code> and <code>ToolCall</code> with structured metadata for optimization metrics.
+- <strong>Branching Support</strong>: A lightweight <code>fork()</code> mechanism to support tree-of-thought reasoning without complex graph data structures.
+- <strong>State Checkpointing</strong>: Explicit <code>snapshot()</code> and <code>restore()</code> capabilities for long-running workflows and human-in-the-loop systems.
+- <strong>Context Strategies</strong>: Pluggable logic for determining <em>which</em> messages to send to the LLM (e.g., <code>FullHistory</code>, <code>SlidingWindow</code>, <code>SummarizedHistory</code>).
+- <strong>Storage Agnosticism</strong>: A repository pattern that allows history to be stored in-memory (default), Redis, Postgres, or file-based systems.</p>
+<h3 id="12-key-decisions-made">1.2 Key Decisions Made<a class="headerlink" href="#12-key-decisions-made" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Decision</th>
+<th>Choice</th>
+<th>Rationale</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Structure</strong></td>
+<td>Forking (Deep Copy)</td>
+<td>Simpler than a linked-list Tree. Enables isolated exploration paths ("Tree of Thoughts") without complex traversal APIs.</td>
+</tr>
+<tr>
+<td><strong>State Mgmt</strong></td>
+<td>Explicit Snapshots</td>
+<td>Enables "Undo", "Pause/Resume", and "Time Travel" debugging for agents.</td>
+</tr>
+<tr>
+<td><strong>Data Model</strong></td>
+<td>Pydantic Models</td>
+<td>Avoids "dict soup" and schema drift. Ensures type safety for complex tool/multimodal interactions.</td>
+</tr>
+<tr>
+<td><strong>Metrics</strong></td>
+<td>Structured Metadata</td>
+<td>Cost, latency, and model info are first-class citizens to enable future "Agent Optimization".</td>
+</tr>
+<tr>
+<td><strong>Storage</strong></td>
+<td>Repository Pattern</td>
+<td>Decouples logic from persistence. Enables scaling from script-kiddie bots to production agents.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="13-core-principle">1.3 Core Principle<a class="headerlink" href="#13-core-principle" title="Permanent link">&para;</a></h3>
+<p><strong>"State before Execution"</strong>: The Conversation component manages <em>state</em> (what happened). The LLM manages <em>execution</em> (what to do next). They are distinct but interoperable.</p>
+<hr />
+<h2 id="2-background-motivation">2. Background &amp; Motivation<a class="headerlink" href="#2-background-motivation" title="Permanent link">&para;</a></h2>
+<h3 id="21-problem-statement">2.1 Problem Statement<a class="headerlink" href="#21-problem-statement" title="Permanent link">&para;</a></h3>
+<p>Building agents currently involves reinventing the wheel for state management:
+1. <strong>Fragile Dictionaries</strong>: Passing <code>[{"role": "user", "content": "..."}]</code> around leads to runtime errors.
+2. <strong>Linearity Constraints</strong>: Standard lists make it hard to implement "Tree of Thoughts" or branching logic.
+3. <strong>Loss of State</strong>: If a script crashes, the conversation is lost. Resuming requires complex custom logic.
+4. <strong>Optimization Blindness</strong>: Without tracking per-turn cost/latency in the history, it's impossible to programmatically optimize the agent later.</p>
+<h3 id="22-solution-strategy">2.2 Solution Strategy<a class="headerlink" href="#22-solution-strategy" title="Permanent link">&para;</a></h3>
+<p>We will implement a <strong>Message-Oriented Middleware</strong> for agents. It acts as the translation layer between "What the agent remembers" (canonical history) and "What the provider sees" (formatted API payload), while adding branching and checkpointing capabilities.</p>
+<hr />
+<h2 id="3-goals-non-goals">3. Goals &amp; Non-Goals<a class="headerlink" href="#3-goals-non-goals" title="Permanent link">&para;</a></h2>
+<h3 id="31-goals">3.1 Goals<a class="headerlink" href="#31-goals" title="Permanent link">&para;</a></h3>
+<p><strong>G1: Canonical Message Model with Metrics</strong>
+- Unified Pydantic representation for System, User, Assistant, Tool messages.
+- <strong>Structured Metadata</strong>: Track <code>cost</code>, <code>latency</code>, <code>model_name</code>, and <code>finish_reason</code> per message.</p>
+<p><strong>G2: Branching &amp; Merging</strong>
+- <code>fork()</code>: Create an independent copy of the conversation for exploration.
+- <code>merge()</code>: Combine a branch back into the main trunk.</p>
+<p><strong>G3: Checkpointing (Time Travel)</strong>
+- <code>snapshot()</code>: Export full state to a dictionary/JSON.
+- <code>restore()</code>: Rebuild conversation from a snapshot.
+- <code>truncate()</code>: Delete messages after a specific point (Undo).</p>
+<p><strong>G4: Plug-and-Play Storage</strong>
+- Abstract <code>BaseStorage</code> interface with default <code>InMemoryStorage</code>.
+- Designed for extension to Redis/SQL.</p>
+<p><strong>G5: Context Strategies</strong>
+- Logic to control what context is sent to the LLM (Windowing, Filtering).</p>
+<h3 id="32-non-goals">3.2 Non-Goals<a class="headerlink" href="#32-non-goals" title="Permanent link">&para;</a></h3>
+<p><strong>NG1: Active Summarization</strong>
+- The component will NOT automatically trigger LLM calls to summarize itself.
+- Summarization is an <em>action</em> performed by the Agent, not a side-effect of storage.</p>
+<p><strong>NG2: Complex Graph Traversal</strong>
+- We do not maintain parent/child links between messages. Branching is handled via separate Conversation objects (Forking).</p>
+<p><strong>NG3: Agent Orchestration</strong>
+- The Conversation does not "run" the loop. It just holds the state.</p>
+<hr />
+<h2 id="4-technical-architecture">4. Technical Architecture<a class="headerlink" href="#4-technical-architecture" title="Permanent link">&para;</a></h2>
+<h3 id="41-high-level-design">4.1 High-Level Design<a class="headerlink" href="#41-high-level-design" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="err">┌───────────────────────────────────────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">                         </span><span class="n">Your</span><span class="w"> </span><span class="n">Agent</span><span class="w"> </span><span class="n">Code</span><span class="w">                           </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                                                                   </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="err">#</span><span class="w"> </span><span class="n">Branching</span><span class="w"> </span><span class="n">Example</span><span class="w">                                              </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">main_conv</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">Conversation</span><span class="p">()</span><span class="w">                                       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">branch_a</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">main_conv</span><span class="p">.</span><span class="n">fork</span><span class="p">()</span><span class="w">                                      </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="n">branch_a</span><span class="p">.</span><span class="n">add_user</span><span class="p">(</span><span class="ss">&quot;Try Plan A&quot;</span><span class="p">)</span><span class="w">                                  </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="k">if</span><span class="w"> </span><span class="nl">success</span><span class="p">:</span><span class="w"> </span><span class="n">main_conv</span><span class="p">.</span><span class="k">merge</span><span class="p">(</span><span class="n">branch_a</span><span class="p">)</span><span class="w">                            </span><span class="err">│</span>
+<span class="err">└───────────────────────────────────────────────────────────────────┘</span>
+<span class="w">                </span><span class="err">│</span><span class="w">                                  </span><span class="err">│</span>
+<span class="w">                </span><span class="err">▼</span><span class="w">                                  </span><span class="err">▼</span>
+<span class="err">┌──────────────────────────────┐</span><span class="w">   </span><span class="err">┌────────────────────────────────┐</span>
+<span class="err">│</span><span class="w">    </span><span class="n">Conversation</span><span class="w"> </span><span class="n">Controller</span><span class="w">   </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">             </span><span class="n">LLM</span><span class="w">                </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="p">(</span><span class="n">Manages</span><span class="w"> </span><span class="n">Forks</span><span class="w"> </span><span class="o">&amp;</span><span class="w"> </span><span class="n">Snaps</span><span class="p">)</span><span class="w">     </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">      </span><span class="p">(</span><span class="n">Executes</span><span class="w"> </span><span class="n">Requests</span><span class="p">)</span><span class="w">       </span><span class="err">│</span>
+<span class="err">│</span><span class="w">                              </span><span class="err">│</span><span class="w">   </span><span class="err">│</span><span class="w">                                </span><span class="err">│</span>
+<span class="err">└──────────────────────────────┘</span><span class="w">   </span><span class="err">└────────────────────────────────┘</span>
+<span class="w">                </span><span class="err">│</span>
+<span class="w">                </span><span class="err">▼</span>
+<span class="err">┌──────────────────────────────┐</span>
+<span class="err">│</span><span class="w">        </span><span class="n">Storage</span><span class="w"> </span><span class="n">Layer</span><span class="w">         </span><span class="err">│</span>
+<span class="err">│</span><span class="w">  </span><span class="o">[</span><span class="n">In-Memory</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">Redis</span><span class="o">]</span><span class="w"> </span><span class="o">[</span><span class="n">SQL</span><span class="o">]</span><span class="w">   </span><span class="err">│</span>
+<span class="err">└──────────────────────────────┘</span>
+</code></pre></div>
+
+<h3 id="42-the-data-model-canonical">4.2 The Data Model (Canonical)<a class="headerlink" href="#42-the-data-model-canonical" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">MessageMetadata</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">cost</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">latency_ms</span><span class="p">:</span> <span class="nb">float</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">finish_reason</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">model</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">custom</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ContentBlock</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">type</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;text&quot;</span><span class="p">,</span> <span class="s2">&quot;image_url&quot;</span><span class="p">]</span>
+    <span class="n">text</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">image_url</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">ToolCall</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">arguments</span><span class="p">:</span> <span class="nb">dict</span>
+
+<span class="k">class</span><span class="w"> </span><span class="nc">Message</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">uuid4</span><span class="p">)</span>
+    <span class="n">role</span><span class="p">:</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">&quot;system&quot;</span><span class="p">,</span> <span class="s2">&quot;user&quot;</span><span class="p">,</span> <span class="s2">&quot;assistant&quot;</span><span class="p">,</span> <span class="s2">&quot;tool&quot;</span><span class="p">]</span>
+    <span class="n">content</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="n">ContentBlock</span><span class="p">]</span>
+    <span class="n">tool_calls</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ToolCall</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">tool_call_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">metadata</span><span class="p">:</span> <span class="n">MessageMetadata</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">MessageMetadata</span><span class="p">)</span>
+    <span class="n">created_at</span><span class="p">:</span> <span class="n">datetime</span> <span class="o">=</span> <span class="n">Field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">utcnow</span><span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="5-detailed-requirements">5. Detailed Requirements<a class="headerlink" href="#5-detailed-requirements" title="Permanent link">&para;</a></h2>
+<h3 id="51-core-conversation-operations">5.1 Core Conversation Operations<a class="headerlink" href="#51-core-conversation-operations" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Initialization</strong>: <code>Conversation(storage=..., strategy=...)</code></li>
+<li><strong>Add Messages</strong>:</li>
+<li><code>add_system(content)</code></li>
+<li><code>add_user(content, images=[])</code></li>
+<li><code>add_assistant(content, tool_calls=[], metadata={})</code></li>
+<li><code>add_tool_result(tool_call_id, content, metadata={})</code></li>
+<li><strong>Retrieval</strong>:</li>
+<li><code>get_history()</code>: Apply active strategy (e.g. sliding window) and return list of dicts for LLM.</li>
+<li><code>get_all_messages()</code>: Return raw <code>Message</code> objects (no filtering).</li>
+</ul>
+<h3 id="52-branching-time-travel">5.2 Branching &amp; Time Travel<a class="headerlink" href="#52-branching-time-travel" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>fork() -&gt; Conversation</code></strong>:</li>
+<li>Returns a new Conversation instance with a deep copy of the current history.</li>
+<li>The new instance is independent (changes to it do not affect parent).</li>
+<li><strong><code>merge(branch: Conversation)</code></strong>:</li>
+<li>Appends the <em>new</em> messages from the branch to the current conversation.</li>
+<li><strong><code>truncate(message_id: str)</code></strong>:</li>
+<li>Removes all messages <em>after</em> the specified ID.</li>
+<li>Used for "Undo" or "Retry" flows.</li>
+</ul>
+<h3 id="53-checkpointing">5.3 Checkpointing<a class="headerlink" href="#53-checkpointing" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong><code>snapshot() -&gt; dict</code></strong>:</li>
+<li>Serializes the full state (history + metadata) to a dictionary.</li>
+<li><strong><code>load(snapshot: dict)</code></strong>:</li>
+<li>Restores state from a snapshot.</li>
+</ul>
+<h3 id="54-storage-interface-basestorage">5.4 Storage Interface (<code>BaseStorage</code>)<a class="headerlink" href="#54-storage-interface-basestorage" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>CRUD Operations</strong>:</li>
+<li><code>save_message(message)</code></li>
+<li><code>get_messages()</code></li>
+<li><code>delete_after(message_id)</code> (Support for truncation)</li>
+</ul>
+<h3 id="55-context-strategies">5.5 Context Strategies<a class="headerlink" href="#55-context-strategies" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Strategy Interface</strong>:</li>
+<li><code>select_messages(all_messages: list[Message], **kwargs) -&gt; list[Message]</code></li>
+<li><strong>Note</strong>: Strategies must be pure functions operating only on the list of messages. They must NOT accept the <code>Conversation</code> object or <code>Storage</code> backend.</li>
+<li><strong>Standard Implementations</strong>:</li>
+<li><code>FullHistory</code>: Returns identity.</li>
+<li><code>SlidingWindow</code>: Returns <code>system_prompt + last_n_messages</code>.</li>
+<li><code>TokenLimitedWindow</code> (Optional v1.1): Returns <code>system_prompt + messages_fitting_token_budget</code>.</li>
+</ul>
+<hr />
+<h2 id="6-api-design">6. API Design<a class="headerlink" href="#6-api-design" title="Permanent link">&para;</a></h2>
+<h3 id="61-basic-usage">6.1 Basic Usage<a class="headerlink" href="#61-basic-usage" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rawagents.conversation</span><span class="w"> </span><span class="kn">import</span> <span class="n">Conversation</span>
+
+<span class="n">conv</span> <span class="o">=</span> <span class="n">Conversation</span><span class="p">()</span>
+<span class="n">conv</span><span class="o">.</span><span class="n">add_system</span><span class="p">(</span><span class="s2">&quot;You are a helpful assistant.&quot;</span><span class="p">)</span>
+<span class="n">conv</span><span class="o">.</span><span class="n">add_user</span><span class="p">(</span><span class="s2">&quot;Hello&quot;</span><span class="p">)</span>
+
+<span class="c1"># Get context for LLM (returns list[dict])</span>
+<span class="n">messages</span> <span class="o">=</span> <span class="n">conv</span><span class="o">.</span><span class="n">get_history</span><span class="p">()</span>
+</code></pre></div>
+
+<h3 id="62-branching-tree-of-thoughts">6.2 Branching (Tree of Thoughts)<a class="headerlink" href="#62-branching-tree-of-thoughts" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># The user asks a complex question</span>
+<span class="n">conv</span><span class="o">.</span><span class="n">add_user</span><span class="p">(</span><span class="s2">&quot;Solve P=NP&quot;</span><span class="p">)</span>
+
+<span class="c1"># Create 3 independent thinking branches</span>
+<span class="n">branches</span> <span class="o">=</span> <span class="p">[</span><span class="n">conv</span><span class="o">.</span><span class="n">fork</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">3</span><span class="p">)]</span>
+
+<span class="c1"># Explore each branch</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">branch</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">branches</span><span class="p">):</span>
+    <span class="n">branch</span><span class="o">.</span><span class="n">add_system</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Attempt approach #</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="c1"># ... run agent loop on branch ...</span>
+
+<span class="c1"># Pick the winner (e.g. branch 1)</span>
+<span class="n">conv</span><span class="o">.</span><span class="n">merge</span><span class="p">(</span><span class="n">branches</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+</code></pre></div>
+
+<h3 id="63-checkpointing-pauseresume">6.3 Checkpointing (Pause/Resume)<a class="headerlink" href="#63-checkpointing-pauseresume" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Save state to DB</span>
+<span class="n">state_blob</span> <span class="o">=</span> <span class="n">conv</span><span class="o">.</span><span class="n">snapshot</span><span class="p">()</span>
+<span class="n">db</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">session_id</span><span class="p">,</span> <span class="n">state_blob</span><span class="p">)</span>
+
+<span class="c1"># --- Later ---</span>
+
+<span class="c1"># Resume</span>
+<span class="n">conv</span> <span class="o">=</span> <span class="n">Conversation</span><span class="p">()</span>
+<span class="n">conv</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">state_blob</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="64-optimization-metrics">6.4 Optimization Metrics<a class="headerlink" href="#64-optimization-metrics" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="c1"># When adding an assistant response, track the cost</span>
+<span class="n">conv</span><span class="o">.</span><span class="n">add_assistant</span><span class="p">(</span>
+    <span class="n">content</span><span class="o">=</span><span class="s2">&quot;Hello!&quot;</span><span class="p">,</span>
+    <span class="n">metadata</span><span class="o">=</span><span class="p">{</span>
+        <span class="s2">&quot;cost&quot;</span><span class="p">:</span> <span class="mf">0.002</span><span class="p">,</span>
+        <span class="s2">&quot;latency_ms&quot;</span><span class="p">:</span> <span class="mi">450</span><span class="p">,</span>
+        <span class="s2">&quot;model&quot;</span><span class="p">:</span> <span class="s2">&quot;gpt-4o&quot;</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="7-project-structure">7. Project Structure<a class="headerlink" href="#7-project-structure" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>src/rawagents/state/
+├── __init__.py           # Exports
+├── conversation.py       # Main Logic (Controller)
+├── types.py              # Pydantic Models (Message, Metadata)
+├── storage/
+│   ├── __init__.py
+│   ├── base.py           # Abstract BaseStorage
+│   └── memory.py         # InMemoryStorage
+└── strategies/
+    ├── __init__.py
+    ├── base.py           # Abstract ContextStrategy
+    └── window.py         # SlidingWindowStrategy
+</code></pre></div>
+
+<hr />
+<h2 id="8-implementation-approach">8. Implementation Approach<a class="headerlink" href="#8-implementation-approach" title="Permanent link">&para;</a></h2>
+<h3 id="phase-1-data-models-day-1">Phase 1: Data Models (Day 1)<a class="headerlink" href="#phase-1-data-models-day-1" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Implement <code>MessageMetadata</code> and <code>Message</code> in <code>types.py</code>.</li>
+<li>Ensure Pydantic validation works for all fields.</li>
+</ul>
+<h3 id="phase-2-core-logic-day-1-2">Phase 2: Core Logic (Day 1-2)<a class="headerlink" href="#phase-2-core-logic-day-1-2" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Implement <code>InMemoryStorage</code>.</li>
+<li>Implement <code>Conversation</code> add/get methods.</li>
+<li>Implement <code>fork()</code> and <code>truncate()</code> logic.</li>
+</ul>
+<h3 id="phase-3-strategies-export-day-3">Phase 3: Strategies &amp; Export (Day 3)<a class="headerlink" href="#phase-3-strategies-export-day-3" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Implement <code>SlidingWindow</code> strategy.</li>
+<li>Implement <code>to_openai_format()</code> converter.</li>
+</ul>
+<h3 id="phase-4-testing-examples-day-4">Phase 4: Testing &amp; Examples (Day 4)<a class="headerlink" href="#phase-4-testing-examples-day-4" title="Permanent link">&para;</a></h3>
+<ul>
+<li>Unit tests for forking (ensure deep copy).</li>
+<li>Integration test with <code>LLM</code>.</li>
+</ul>
+<hr />
+<h2 id="9-risks-mitigations">9. Risks &amp; Mitigations<a class="headerlink" href="#9-risks-mitigations" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Risk</th>
+<th>Impact</th>
+<th>Mitigation</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Forking Memory Usage</strong></td>
+<td>Medium</td>
+<td>Forking duplicates message objects. For 1000+ turn conversations, this is heavy. <em>Mitigation:</em> Recommend <code>fork()</code> for reasoning steps (short-term), not long history cloning.</td>
+</tr>
+<tr>
+<td><strong>Schema Drift</strong></td>
+<td>High</td>
+<td>Internal Pydantic models act as the source of truth.</td>
+</tr>
+<tr>
+<td><strong>Metadata Bloat</strong></td>
+<td>Low</td>
+<td>Keep metadata optional. Only store what is needed.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="10-success-criteria">10. Success Criteria<a class="headerlink" href="#10-success-criteria" title="Permanent link">&para;</a></h2>
+<ul>
+<li>[ ] <strong>Branching</strong>: <code>fork()</code> creates a truly independent copy (modifying child doesn't affect parent).</li>
+<li>[ ] <strong>Metrics</strong>: Can retrieve cost/latency stats from the conversation history.</li>
+<li>[ ] <strong>Interoperability</strong>: Output of <code>get_history()</code> works directly with <code>LLM</code>.</li>
+<li>[ ] <strong>Time Travel</strong>: <code>truncate()</code> successfully effectively "undos" the last N turns.</li>
+</ul>
+<hr />
+<h2 id="11-timeline">11. Timeline<a class="headerlink" href="#11-timeline" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>Day 1</strong>: Models, Storage, Core Logic</li>
+<li><strong>Day 2</strong>: Branching, Checkpointing, Strategies</li>
+<li><strong>Day 3</strong>: Integration &amp; Docs</li>
+</ul>
+<hr />
+<h2 id="12-component-relationship-diagram">12. Component Relationship Diagram<a class="headerlink" href="#12-component-relationship-diagram" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code>┌──────────────┐<span class="w">       </span>┌───────────────────┐<span class="w">       </span>┌────────────────┐
+│<span class="w">     </span><span class="nv">LLM</span><span class="w">      </span>│◄──────┤<span class="w">       </span><span class="nv">Agent</span><span class="w">       </span>├──────►│<span class="w">  </span><span class="nv">Conversation</span><span class="w">  </span>│
+│<span class="w"> </span><span class="ss">(</span><span class="nv">Stateless</span><span class="ss">)</span><span class="w">  </span>│<span class="w">       </span>│<span class="w">     </span><span class="nv">Runtime</span><span class="w">       </span>│<span class="w">       </span>│<span class="w">    </span><span class="ss">(</span><span class="nv">State</span><span class="ss">)</span><span class="w">     </span>│
+└──────────────┘<span class="w">       </span>└───────────────────┘<span class="w">       </span>└───────┬────────┘
+<span class="w">                                                           </span>│
+<span class="w">                             </span>┌─────────────────────────────▼─────┐
+<span class="w">                             </span>│<span class="w">           </span><span class="nv">Features</span><span class="w">                </span>│
+<span class="w">                             </span>│<span class="w"> </span>•<span class="w"> </span><span class="nv">Forking</span><span class="w"> </span><span class="ss">(</span><span class="nv">Deep</span><span class="w"> </span><span class="nv">Copy</span><span class="ss">)</span><span class="w">             </span>│
+<span class="w">                             </span>│<span class="w"> </span>•<span class="w"> </span><span class="nv">Snapshots</span><span class="w"> </span><span class="ss">(</span><span class="k">Pause</span><span class="o">/</span><span class="nv">Resume</span><span class="ss">)</span><span class="w">        </span>│
+<span class="w">                             </span>│<span class="w"> </span>•<span class="w"> </span><span class="nv">Metrics</span><span class="w"> </span><span class="ss">(</span><span class="nv">Cost</span><span class="o">/</span><span class="nv">Latency</span><span class="ss">)</span><span class="w">          </span>│
+<span class="w">                             </span>└───────────────────────────────────┘
+</code></pre></div>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.instant", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

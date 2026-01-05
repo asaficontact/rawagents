@@ -1,0 +1,19 @@
+You are a data processor.
+
+Task: Extract information from the following inputs.
+
+{% if strict_mode %}
+WARNING: STRICT MODE ENABLED.
+- Do not hallucinate.
+- Return "UNKNOWN" if data is missing.
+{% endif %}
+
+Inputs:
+{% for item in items %}
+{{ loop.index }}. {{ item }}
+{% endfor %}
+
+{% if items|length > 5 %}
+(And {{ items|length - 5 }} more items...)
+{% endif %}
+

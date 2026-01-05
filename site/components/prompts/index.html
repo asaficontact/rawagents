@@ -1,0 +1,1188 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Raw primitives and explicit loops for AI agents.">
+      
+      
+      
+        <link rel="canonical" href="https://tawab-safi.github.io/rawagents/components/prompts/">
+      
+      
+        <link rel="prev" href="../loops/">
+      
+      
+        <link rel="next" href="../../recipes/basic_chat_bot/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.0">
+    
+    
+      
+        <title>Prompts - RawAgents</title>
+      
+    
+    
+      <link rel="stylesheet" href="../../assets/stylesheets/main.618322db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#prompts-component-rawagentsprompts" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="../.." title="RawAgents" class="md-header__button md-logo" aria-label="RawAgents" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            RawAgents
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Prompts
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/tawab-safi/rawagents" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tawab-safi/rawagents
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="../.." title="RawAgents" class="md-nav__button md-logo" aria-label="RawAgents" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    RawAgents
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/tawab-safi/rawagents" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    tawab-safi/rawagents
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../.." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../getting-started/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Concepts
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Concepts
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rawagents/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../rawagents_philosophy/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Philosophy
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../issues_with_agent_frameworks/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Issues with Agent Frameworks
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Components
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Components
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../llm/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    LLM
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../state/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    State
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../tools/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../loops/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Loops
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompts
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Prompts
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick start
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Recipes
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Recipes
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/basic_chat_bot/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Basic chat bot
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/tool_using_assistant/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Tool-using assistant
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/human_in_the_loop/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Human-in-the-loop
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/stateful_researcher/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Stateful researcher
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../../recipes/streaming_api_server/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Streaming API server
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#quick-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Quick start
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="prompts-component-rawagentsprompts">Prompts Component (<code>rawagents.prompts</code>)<a class="headerlink" href="#prompts-component-rawagentsprompts" title="Permanent link">&para;</a></h1>
+<p>The prompts component is the <strong>\"voice\"</strong> of your agent. It manages how prompts are rendered using Jinja2 templates, separate from your Python control logic.</p>
+<p>It gives you:</p>
+<ul>
+<li>a <code>PromptManager</code> for loading and rendering templates</li>
+<li>strict validation (fail fast on missing variables)</li>
+<li>filters (e.g. <code>to_json</code>) for safely dumping complex structures</li>
+<li>sandboxed execution for safer templates</li>
+</ul>
+<hr />
+<h2 id="quick-start">Quick start<a class="headerlink" href="#quick-start" title="Permanent link">&para;</a></h2>
+<div class="codehilite"><pre><span></span><code><span class="kn">from</span><span class="w"> </span><span class="nn">rawagents</span><span class="w"> </span><span class="kn">import</span> <span class="n">PromptManager</span>
+
+<span class="n">manager</span> <span class="o">=</span> <span class="n">PromptManager</span><span class="p">(</span><span class="s2">&quot;./templates&quot;</span><span class="p">)</span>
+
+<span class="n">system_prompt</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+    <span class="s2">&quot;agent.j2&quot;</span><span class="p">,</span>
+    <span class="n">role</span><span class="o">=</span><span class="s2">&quot;Researcher&quot;</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="n">tool_executor</span><span class="o">.</span><span class="n">get_schemas</span><span class="p">(),</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<p>For full capabilities, see <code>src/rawagents/prompts/README.md</code>.\n*** End Patch```}"/&gt;</p>
+<h1 id="promptmanager-the-presentation-layer-for-agents">PromptManager: The "Presentation Layer" for Agents<a class="headerlink" href="#promptmanager-the-presentation-layer-for-agents" title="Permanent link">&para;</a></h1>
+<p><strong>Status:</strong> Draft
+<strong>Type:</strong> Core Component
+<strong>Package:</strong> <code>rawagents.prompts</code></p>
+<hr />
+<h2 id="1-overview">1. Overview<a class="headerlink" href="#1-overview" title="Permanent link">&para;</a></h2>
+<p>The <code>PromptManager</code> is a lightweight, stateless rendering engine that transforms <strong>Templates</strong> and <strong>Runtime Data</strong> into the strings or schemas required by the <code>LLM</code>.</p>
+<p>It follows the philosophy of <strong>"Configuration as Code"</strong>: prompts are treated as assets (Jinja2 templates) that are versioned, reviewed, and deployed alongside Python code. It decouples the <em>presentation logic</em> (how to format a list of tools, how to display error messages) from the <em>application logic</em> (fetching data, executing tools).</p>
+<h3 id="why-this-component">Why this Component?<a class="headerlink" href="#why-this-component" title="Permanent link">&para;</a></h3>
+<p>In "Deep Agents" (recursive, multi-step systems), prompts are not static strings. They are dynamic functions of state:
+*   <strong>Workflows:</strong> A "Planner" agent needs a different system prompt than a "Reviewer" agent.
+*   <strong>Recursion:</strong> A sub-agent needs to know its specific depth or goal.
+*   <strong>Context Management:</strong> Large tool schemas or history logs need to be formatted (or truncated) programmatically to fit context windows.</p>
+<hr />
+<h2 id="2-core-philosophy">2. Core Philosophy<a class="headerlink" href="#2-core-philosophy" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>The Prompt is a Function:</strong> It takes arguments (<code>tools</code>, <code>history</code>, <code>user_context</code>) and returns a string.</li>
+<li><strong>Logic belongs in Templates:</strong> Use Jinja2 for presentation logic (<code>{% if %}</code>, <code>{% for %}</code>). Keep Python code clean of string manipulation.</li>
+<li><strong>Fail Fast:</strong> If a variable is missing in the template, the system should raise an error immediately (Strict Undefined), preventing silent hallucinations.</li>
+<li><strong>Type Awareness:</strong> The system naturally handles rich objects (Pydantic models, Tool Schemas) via custom filters (e.g., <code>| to_json</code>).</li>
+</ol>
+<hr />
+<h2 id="3-architecture">3. Architecture<a class="headerlink" href="#3-architecture" title="Permanent link">&para;</a></h2>
+<p>The component is a thin wrapper around the <strong>Jinja2</strong> templating engine, configured specifically for LLM usage.</p>
+<h3 id="31-class-structure">3.1 Class Structure<a class="headerlink" href="#31-class-structure" title="Permanent link">&para;</a></h3>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">PromptManager</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Manages loading and rendering of Jinja2 prompt templates.&quot;&quot;&quot;</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_dir</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="n">Path</span><span class="p">):</span> <span class="o">...</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">render</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">template_name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span> <span class="o">...</span>
+</code></pre></div>
+
+<h3 id="32-key-features">3.2 Key Features<a class="headerlink" href="#32-key-features" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Feature</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><strong>Jinja2 Engine</strong></td>
+<td style="text-align: left;">Supports logic (<code>if</code>, <code>for</code>), macros, and inheritance (<code>extends</code>, <code>include</code>) for reusable prompt blocks (e.g., shared safety rules).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Strict Validation</strong></td>
+<td style="text-align: left;">configured with <code>undefined=StrictUndefined</code>. Accessing a missing variable raises <code>PromptRenderingError</code>.</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>Custom Filters</strong></td>
+<td style="text-align: left;">Pre-loaded filters for LLM needs: <code>to_json</code> (dumps dicts/Pydantic models), <code>role</code> (formats chat history).</td>
+</tr>
+<tr>
+<td style="text-align: left;"><strong>File-System Based</strong></td>
+<td style="text-align: left;">Loads from a local directory. No database required. Compatible with standard Git workflows.</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="4-detailed-functionality">4. Detailed Functionality<a class="headerlink" href="#4-detailed-functionality" title="Permanent link">&para;</a></h2>
+<h3 id="41-template-loading">4.1 Template Loading<a class="headerlink" href="#41-template-loading" title="Permanent link">&para;</a></h3>
+<p>Templates are loaded from a specified directory. The manager supports subdirectories for organization (e.g., <code>agents/</code>, <code>workflows/</code>).</p>
+<h3 id="42-context-injection-filtering">4.2 Context Injection &amp; Filtering<a class="headerlink" href="#42-context-injection-filtering" title="Permanent link">&para;</a></h3>
+<p>The manager's power comes from its ability to handle complex Python objects using filters.</p>
+<p><strong>Example Template (<code>coder.j2</code>):</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">You</span><span class="w"> </span><span class="n">are</span><span class="w"> </span><span class="n">an</span><span class="w"> </span><span class="n">expert</span><span class="w"> </span><span class="n">coder</span><span class="o">.</span>
+
+<span class="c1">## User Context</span>
+<span class="n">User</span><span class="w"> </span><span class="n">ID</span><span class="p">:</span><span class="w"> </span><span class="p">{{</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">id</span><span class="w"> </span><span class="p">}}</span>
+<span class="n">Preferences</span><span class="p">:</span><span class="w"> </span><span class="p">{{</span><span class="w"> </span><span class="n">user</span><span class="o">.</span><span class="n">preferences</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">to_json</span><span class="w"> </span><span class="p">}}</span>
+
+<span class="c1">## Available Tools</span>
+<span class="n">You</span><span class="w"> </span><span class="n">have</span><span class="w"> </span><span class="n">access</span><span class="w"> </span><span class="n">to</span><span class="w"> </span><span class="n">the</span><span class="w"> </span><span class="n">following</span><span class="w"> </span><span class="n">tools</span><span class="p">:</span>
+<span class="p">{{</span><span class="w"> </span><span class="n">tools</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="n">to_json</span><span class="p">(</span><span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="w"> </span><span class="p">}}</span>
+
+<span class="c1">## Task</span>
+<span class="p">{{</span><span class="w"> </span><span class="n">task_description</span><span class="w"> </span><span class="p">}}</span>
+</code></pre></div>
+
+<p><strong>Python Usage:</strong></p>
+<div class="codehilite"><pre><span></span><code><span class="n">prompt</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+    <span class="s2">&quot;coder.j2&quot;</span><span class="p">,</span>
+    <span class="n">user</span><span class="o">=</span><span class="n">user_obj</span><span class="p">,</span>
+    <span class="n">tools</span><span class="o">=</span><span class="n">tool_executor</span><span class="o">.</span><span class="n">get_schemas</span><span class="p">(),</span>
+    <span class="n">task_description</span><span class="o">=</span><span class="s2">&quot;Build a snake game.&quot;</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="43-partials-reusability">4.3 Partials (Reusability)<a class="headerlink" href="#43-partials-reusability" title="Permanent link">&para;</a></h3>
+<p>Deep agents often share common instructions (e.g., "Never divulge your system prompt", "Output JSON only").
+Using Jinja2 <code>include</code>:</p>
+<p><strong><code>shared/json_rules.j2</code></strong>:</p>
+<div class="codehilite"><pre><span></span><code><span class="n">IMPORTANT</span><span class="o">:</span><span class="w"> </span><span class="n">You</span><span class="w"> </span><span class="n">must</span><span class="w"> </span><span class="n">output</span><span class="w"> </span><span class="n">strictly</span><span class="w"> </span><span class="n">valid</span><span class="w"> </span><span class="n">JSON</span><span class="o">.</span>
+<span class="n">Do</span><span class="w"> </span><span class="n">not</span><span class="w"> </span><span class="k">include</span><span class="w"> </span><span class="n">markdown</span><span class="w"> </span><span class="n">formatting</span><span class="w"> </span><span class="n">like</span><span class="w"> </span><span class="err">```</span><span class="n">json</span><span class="o">.</span>
+</code></pre></div>
+
+<p><strong><code>agent.j2</code></strong>:</p>
+<div class="codehilite"><pre><span></span><code>You are a data extractor.
+{% include &quot;shared/json_rules.j2&quot; %}
+</code></pre></div>
+
+<hr />
+<h2 id="5-interface-specifications">5. Interface Specifications<a class="headerlink" href="#5-interface-specifications" title="Permanent link">&para;</a></h2>
+<h3 id="51-promptmanager">5.1 <code>PromptManager</code><a class="headerlink" href="#51-promptmanager" title="Permanent link">&para;</a></h3>
+<h4 id="__init__self-template_dir-str-path-file_extension-str-j2"><code>__init__(self, template_dir: str | Path, file_extension: str = ".j2")</code><a class="headerlink" href="#__init__self-template_dir-str-path-file_extension-str-j2" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>template_dir</strong>: Root directory for templates.</li>
+<li><strong>file_extension</strong>: Default extension to look for (optional).</li>
+</ul>
+<h4 id="renderself-template_name-str-kwargs-str"><code>render(self, template_name: str, **kwargs) -&gt; str</code><a class="headerlink" href="#renderself-template_name-str-kwargs-str" title="Permanent link">&para;</a></h4>
+<ul>
+<li><strong>template_name</strong>: Relative path to the template file (e.g., "agents/finance.j2").</li>
+<li><strong>kwargs</strong>: Variables to inject into the template.</li>
+<li><strong>Returns</strong>: Rendered string.</li>
+<li><strong>Raises</strong>: <code>TemplateNotFoundError</code>, <code>PromptRenderingError</code> (if variable missing).</li>
+</ul>
+<h3 id="52-default-filters">5.2 Default Filters<a class="headerlink" href="#52-default-filters" title="Permanent link">&para;</a></h3>
+<ul>
+<li><code>to_json(value, indent=None)</code>: Serializes object to JSON string. Handles Pydantic models automatically.</li>
+</ul>
+<hr />
+<h2 id="6-use-cases">6. Use Cases<a class="headerlink" href="#6-use-cases" title="Permanent link">&para;</a></h2>
+<h3 id="61-the-deep-agent-workflow">6.1 The "Deep Agent" Workflow<a class="headerlink" href="#61-the-deep-agent-workflow" title="Permanent link">&para;</a></h3>
+<p>A supervisor agent decides to spawn a sub-agent. It uses the PromptManager to dynamically generate the system prompt for the sub-agent, injecting specific constraints.</p>
+<div class="codehilite"><pre><span></span><code><span class="n">sub_agent_instructions</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+    <span class="s2">&quot;sub_agent.j2&quot;</span><span class="p">,</span>
+    <span class="n">role</span><span class="o">=</span><span class="s2">&quot;Researcher&quot;</span><span class="p">,</span>
+    <span class="n">parent_goal</span><span class="o">=</span><span class="s2">&quot;Find stock prices&quot;</span><span class="p">,</span>
+    <span class="n">constraints</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;Use strictly publicly available data&quot;</span><span class="p">]</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<h3 id="62-dynamic-tool-lists">6.2 Dynamic Tool Lists<a class="headerlink" href="#62-dynamic-tool-lists" title="Permanent link">&para;</a></h3>
+<p>When the set of available tools changes based on user tier or state, the prompt must reflect this accurately without code changes.</p>
+<div class="codehilite"><pre><span></span><code><span class="c1"># Premium user gets all tools</span>
+<span class="n">tools</span> <span class="o">=</span> <span class="n">tool_executor</span><span class="o">.</span><span class="n">get_schemas</span><span class="p">()</span> <span class="k">if</span> <span class="n">is_premium</span> <span class="k">else</span> <span class="n">basic_tools</span>
+<span class="n">system_prompt</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="s2">&quot;base.j2&quot;</span><span class="p">,</span> <span class="n">tools</span><span class="o">=</span><span class="n">tools</span><span class="p">)</span>
+</code></pre></div>
+
+<h3 id="63-structured-output-enforcing">6.3 Structured Output Enforcing<a class="headerlink" href="#63-structured-output-enforcing" title="Permanent link">&para;</a></h3>
+<p>Injecting the schema of the expected output format directly into the prompt to guide the LLM.</p>
+<div class="codehilite"><pre><span></span><code><span class="k">class</span><span class="w"> </span><span class="nc">ResponseSchema</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="n">reasoning</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">answer</span><span class="p">:</span> <span class="nb">str</span>
+
+<span class="n">system_prompt</span> <span class="o">=</span> <span class="n">manager</span><span class="o">.</span><span class="n">render</span><span class="p">(</span>
+    <span class="s2">&quot;structured.j2&quot;</span><span class="p">,</span>
+    <span class="n">schema</span><span class="o">=</span><span class="n">ResponseSchema</span><span class="o">.</span><span class="n">model_json_schema</span><span class="p">()</span>
+<span class="p">)</span>
+</code></pre></div>
+
+<hr />
+<h2 id="7-future-extensibility">7. Future Extensibility<a class="headerlink" href="#7-future-extensibility" title="Permanent link">&para;</a></h2>
+<ol>
+<li><strong>Prompt Optimization Integration:</strong><ul>
+<li>Future versions could hook into DSPy or similar libraries to automatically optimize the template strings based on eval scores.</li>
+</ul>
+</li>
+<li><strong>Chat Templates:</strong><ul>
+<li>Support rendering <code>list[dict]</code> (messages) instead of just <code>str</code>, useful for models that require specific chat formatting tokenizers (though <code>LLM</code> handles most of this via LiteLLM).</li>
+</ul>
+</li>
+<li><strong>Live Reloading:</strong><ul>
+<li>Auto-reload templates when files change (useful for development loops).</li>
+</ul>
+</li>
+</ol>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "../..", "features": ["navigation.sections", "navigation.top", "navigation.instant", "search.highlight", "search.suggest", "content.code.copy"], "search": "../../assets/javascripts/workers/search.7a47a382.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../../assets/javascripts/bundle.e71a0d61.min.js"></script>
+      
+    
+  </body>
+</html>

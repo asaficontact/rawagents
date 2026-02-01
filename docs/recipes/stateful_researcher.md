@@ -14,8 +14,8 @@ async def run_branch(label: str, conv: Conversation, client: AsyncLLM) -> Conver
     branch.add_user(f"Explore approach: {label}")
 
     async for step in loops.simple(
-        conversation=branch,
         llm=client,
+        conversation=branch,
         tools=None,
     ):
         if step.type == "finish":

@@ -14,7 +14,7 @@ The LLM shouldn't see or provide internal dependencies - that's your code's resp
 
 ```python
 from typing import Annotated
-from ai_components.tools import tool, ToolExecutor, Inject
+from rawagents.tools import tool, ToolExecutor, Inject
 
 @tool
 def search_users(

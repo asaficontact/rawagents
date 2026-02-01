@@ -58,3 +58,11 @@ unchained.md
 
 #claude
 .claude/
+
+#claude-flow
+.claude-flow/
+.swarm/
+.mcp.json
+Claude.md
+
+

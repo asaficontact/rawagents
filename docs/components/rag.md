@@ -32,7 +32,7 @@
 
 The **RAG Component** (`rawagents.rag`) provides the **"knowledge"** primitives for agents—the ability to retrieve relevant information from external sources before or during LLM interactions.
 
-Unlike monolithic RAG frameworks (LangChain, LlamaIndex), `rawagents.rag` follows our core philosophy of **"Primitives over Frameworks"**:
+`rawagents.rag` follows our core philosophy of **"Primitives over Frameworks"**:
 
 - **Chunkers**: Split documents into retrievable units
 - **Embedders**: Convert text to vector representations
@@ -839,7 +839,7 @@ class Retriever:
         query: str,
         top_k: int = 5,
         filters: dict[str, Any] | None = None,
-        score_threshold: float | None = None,
+        rerank: bool = True,
     ) -> list[SearchResult]:
         """Retrieve relevant chunks for a query.
 
@@ -847,7 +847,7 @@ class Retriever:
             query: The search query.
             top_k: Maximum results to return.
             filters: Optional metadata filters.
-            score_threshold: Minimum relevance score.
+            rerank: Whether to apply reranker if configured (default: True).
 
         Returns:
             List of SearchResult, sorted by relevance.
@@ -859,7 +859,7 @@ class Retriever:
         query: str,
         top_k: int = 5,
         filters: dict[str, Any] | None = None,
-        score_threshold: float | None = None,
+        rerank: bool = True,
     ) -> list[SearchResult]:
         """Async version of retrieve."""
         ...
@@ -938,50 +938,48 @@ Context formatting is handled by **PromptManager**, not the RAG module. RAG prov
 # rawagents/rag/filters.py
 
 def format_chunk(
-    result: SearchResult,
-    show_score: bool = False,
-    show_source: bool = True,
+    chunk: Chunk,
+    include_metadata: bool = False,
 ) -> str:
-    """Format a single search result for display.
+    """Format a single chunk for display.
 
     Args:
-        result: The search result to format.
-        show_score: Include relevance score.
-        show_source: Include source metadata.
+        chunk: The chunk to format.
+        include_metadata: Include chunk metadata in output.
 
     Returns:
         Formatted string representation.
     """
-    parts = []
-    if show_score:
-        parts.append(f"[Relevance: {result.score:.2f}]")
-    if show_source and result.chunk.metadata.get("source"):
-        parts.append(f"Source: {result.chunk.metadata['source']}")
-    parts.append(result.chunk.content)
-    return "\n".join(parts)
+    if include_metadata and chunk.metadata:
+        meta_str = ", ".join(f"{k}: {v}" for k, v in chunk.metadata.items())
+        return f"[{meta_str}]\n{chunk.content}"
+    return chunk.content
 
 
 def format_context(
     results: list[SearchResult],
-    max_results: int = 5,
-    separator: str = "\n\n---\n\n",
-    show_scores: bool = False,
+    separator: str = "\n---\n",
+    include_scores: bool = False,
+    include_metadata: bool = False,
+    max_results: int | None = None,
 ) -> str:
     """Format search results as a single context string.
 
     Args:
         results: Search results to format.
-        max_results: Maximum results to include.
         separator: String between chunks.
-        show_scores: Include relevance scores.
+        include_scores: Include relevance scores.
+        include_metadata: Include chunk metadata.
+        max_results: Maximum results to include (None for all).
 
     Returns:
         Formatted context string.
     """
+    items = results if max_results is None else results[:max_results]
     formatted = []
-    for i, r in enumerate(results[:max_results]):
-        chunk_text = r.chunk.content
-        if show_scores:
+    for r in items:
+        chunk_text = format_chunk(r.chunk, include_metadata=include_metadata)
+        if include_scores:
             chunk_text = f"[{r.score:.2f}] {chunk_text}"
         formatted.append(chunk_text)
     return separator.join(formatted)
@@ -1361,8 +1359,8 @@ from rawagents.rag.protocols import Chunker, Embedder, VectorStore, Reranker
 from rawagents.rag.chunkers import (
     FixedSizeChunker,
     RecursiveChunker,
-    SemanticChunker,
 )
+# SemanticChunker is planned - not yet implemented
 
 # Embedders
 from rawagents.rag.embedders import LiteLLMEmbedder
@@ -1382,7 +1380,13 @@ from rawagents.rag.retriever import Retriever
 from rawagents.rag.filters import get_rag_filters, format_context, format_chunk
 
 # Exceptions
-from rawagents.rag.exceptions import RAGError, EmbeddingError, RetrievalError
+from rawagents.rag.exceptions import (
+    RAGError,
+    EmbeddingError,
+    RetrievalError,
+    ChunkingError,
+    VectorStoreError,
+)
 
 __all__ = [
     # Types
@@ -1397,7 +1401,7 @@ __all__ = [
     # Chunkers
     "FixedSizeChunker",
     "RecursiveChunker",
-    "SemanticChunker",
+    # "SemanticChunker",  # Planned - not yet implemented
     # Embedders
     "LiteLLMEmbedder",
     # Stores
@@ -1412,6 +1416,8 @@ __all__ = [
     "RAGError",
     "EmbeddingError",
     "RetrievalError",
+    "ChunkingError",
+    "VectorStoreError",
 ]
 ```
 

@@ -23,8 +23,8 @@ async def chat(payload: dict) -> StreamingResponse:
 
     async def stream():
         async for step in loops.simple(
-            conversation=conv,
             llm=client,
+            conversation=conv,
             tools=None,
         ):
             if step.type == "thought" or step.type == "finish":

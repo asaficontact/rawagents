@@ -17,7 +17,7 @@ It uses **Jinja2** to render dynamic, type-safe prompts, solving common issues i
 ## Quick Start
 
 ```python
-from ai_components.prompts import PromptManager
+from rawagents.prompts import PromptManager
 
 # 1. Initialize (points to your templates directory)
 manager = PromptManager("./templates")

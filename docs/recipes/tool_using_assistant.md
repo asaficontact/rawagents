@@ -26,8 +26,8 @@ async def main() -> None:
     conv.add_user("What is the price of Apple?")
 
     async for step in loops.simple(
-        conversation=conv,
         llm=client,
+        conversation=conv,
         tools=executor,
         context={"user": "investor_001"},
     ):

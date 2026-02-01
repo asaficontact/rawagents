@@ -17,8 +17,8 @@ async def main() -> None:
     conv.add_user("Hello! Who are you?")
 
     async for step in loops.simple(
-        conversation=conv,
         llm=client,
+        conversation=conv,
         tools=None,
     ):
         if step.type == "finish":

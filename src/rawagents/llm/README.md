@@ -12,13 +12,13 @@ export GEMINI_API_KEY=AIza...
 ```
 
 ```python
-from ai_components import LLMClient
+from rawagents import LLM
 
 # Simple initialization with defaults
-client = LLMClient()
+client = LLM()
 
 # Or configure inline with kwargs
-client = LLMClient(model="openai/gpt-4o", timeout=120)
+client = LLM(model="openai/gpt-4o", timeout=120)
 
 response = client.complete(
     messages=[{"role": "user", "content": "Hello!"}]
@@ -178,9 +178,9 @@ Supported on: `complete()`, `complete_structured()`, `complete_with_tools()`.
 Initialize directly with kwargs (simplest):
 
 ```python
-from ai_components import LLMClient
+from rawagents import LLM
 
-client = LLMClient(
+client = LLM(
     model="openai/gpt-4o",                    # Default model
     retries=3,                                 # API retries (429, 5xx)
     structured_validation_retries=3,           # Pydantic validation retries
@@ -192,7 +192,7 @@ client = LLMClient(
 Or use a config object (useful for sharing settings):
 
 ```python
-from ai_components import LLMConfig, LLMClient
+from rawagents import LLMConfig, LLM
 
 config = LLMConfig(
     model="openai/gpt-4o",
@@ -201,8 +201,8 @@ config = LLMConfig(
 )
 
 # Create multiple clients with same config
-client1 = LLMClient(config=config)
-client2 = LLMClient(config=config, timeout=120)  # kwargs override config
+client1 = LLM(config=config)
+client2 = LLM(config=config, timeout=120)  # kwargs override config
 ```
 
 ---
@@ -210,8 +210,9 @@ client2 = LLMClient(config=config, timeout=120)  # kwargs override config
 ## Response Types
 
 ```python
-@dataclass
-class LLMResponse:
+from pydantic import BaseModel
+
+class LLMResponse(BaseModel):
     content: str                        # Response text
     model: str                          # Model that responded
     usage: dict[str, int]               # {prompt_tokens, completion_tokens, total_tokens}
@@ -221,13 +222,11 @@ class LLMResponse:
     reasoning_content: str | None       # Model's reasoning text (reasoning models only)
     reasoning_blocks: list[dict] | None # Provider-specific reasoning blocks
 
-@dataclass
-class ToolCall:
+class ToolCall(BaseModel):
     id: str                   # For follow-up messages
     name: str                 # Tool name
     arguments: dict[str, Any] # Parsed arguments
 
-@dataclass
 class ToolResponse(LLMResponse):
     tool_calls: list[ToolCall]  # Empty if no tools called
 ```
@@ -237,10 +236,10 @@ class ToolResponse(LLMResponse):
 ## Async Client
 
 ```python
-from ai_components import AsyncLLMClient
+from rawagents import AsyncLLM
 
-# Same initialization options as LLMClient
-client = AsyncLLMClient(model="openai/gpt-4o", timeout=120)
+# Same initialization options as LLM
+client = AsyncLLM(model="openai/gpt-4o", timeout=120)
 
 response = await client.complete(...)
 person = await client.complete_structured(...)

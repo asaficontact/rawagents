@@ -4,7 +4,7 @@ A lightweight, storage-agnostic session manager for AI agents.
 
 ## Overview
 
-The Conversation component acts as the **"operating system for context"**. It manages the timeline of messages, tool calls, and state for your agents. Unlike a simple list of dictionaries, it provides:
+The Conversation component acts as the **"operating system for short-term context"**. It manages the timeline of messages, tool calls, and state for your agents. Unlike a simple list of dictionaries, it provides:
 
 *   **Type Safety**: Canonical Pydantic models for all message types.
 *   **Branching**: Built-in `fork()` for "Tree of Thoughts" or parallel exploration.
@@ -17,7 +17,7 @@ The Conversation component acts as the **"operating system for context"**. It ma
 ## Quick Start
 
 ```python
-from ai_components.conversation import Conversation
+from rawagents.state import Conversation
 from rawagents.llm import LLM
 
 # 1. Initialize
@@ -70,7 +70,7 @@ conv.add_tool_result(tool_call_id="call_123", content='{"status": "ok"}')
 Strategies control *which* messages are sent to the LLM (e.g., to save tokens). This does **not** delete messages from storage, only filters them for the API call.
 
 ```python
-from ai_components.conversation.strategies import SlidingWindow
+from rawagents.state import SlidingWindow
 
 # Keep only the last 10 messages (plus system prompt)
 conv = Conversation(strategy=SlidingWindow(window_size=10))
@@ -143,7 +143,7 @@ conv.add_assistant(
 The component uses a **Repository Pattern**. The default is `InMemoryStorage`, but you can swap it for production backends.
 
 ```python
-from ai_components.conversation.storage import InMemoryStorage
+from rawagents.state import InMemoryStorage
 
 # Default (In-Memory)
 conv = Conversation(storage=InMemoryStorage())

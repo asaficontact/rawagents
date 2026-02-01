@@ -10,7 +10,7 @@ The `@tool` decorator transforms a regular Python function into a tool that can 
 ## Basic Usage
 
 ```python
-from ai_components.tools import tool
+from rawagents.tools import tool
 
 @tool
 def get_weather(location: str) -> str:
@@ -184,7 +184,7 @@ executor = ToolExecutor([add])
 
 ```python
 from typing import Annotated
-from ai_components.tools import tool, ToolExecutor, Inject
+from rawagents.tools import tool, ToolExecutor, Inject
 
 # 1. Define with @tool
 @tool

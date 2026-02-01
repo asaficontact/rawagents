@@ -29,12 +29,12 @@
 
 ### 1.1 What We're Building
 
-The **Conversation Component** (`rawagents.conversation`) is a "smart container" for managing agent memory and state. It serves as the **operating system for context**, managing the timeline of messages, tool calls, and structured outputs between a user and an LLM.
+The **Conversation Component** (`rawagents.state`) is a "smart container" for managing agent memory and state. It serves as the **operating system for context**, managing the timeline of messages, tool calls, and structured outputs between a user and an LLM.
 
 Unlike a simple list of dictionaries, this component provides:
 - **Canonical Data Model**: Strongly-typed Pydantic models for `Message` and `ToolCall` with structured metadata for optimization metrics.
 - **Branching Support**: A lightweight `fork()` mechanism to support tree-of-thought reasoning without complex graph data structures.
-- **State Checkpointing**: Explicit `snapshot()` and `restore()` capabilities for long-running workflows and human-in-the-loop systems.
+- **State Checkpointing**: Explicit `snapshot()` and `load()` capabilities for long-running workflows and human-in-the-loop systems.
 - **Context Strategies**: Pluggable logic for determining *which* messages to send to the LLM (e.g., `FullHistory`, `SlidingWindow`, `SummarizedHistory`).
 - **Storage Agnosticism**: A repository pattern that allows history to be stored in-memory (default), Redis, Postgres, or file-based systems.
 
@@ -145,8 +145,47 @@ class MessageMetadata(BaseModel):
     latency_ms: float | None = None
     finish_reason: str | None = None
     model: str | None = None
+    usage: dict[str, int] | None = None
+    reasoning_content: str | None = None
+    reasoning_blocks: list[dict[str, Any]] | None = None
     custom: dict[str, Any] = {}
 
+### MessageMetadata Field Reference
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `cost` | `float \| None` | USD cost of the API call that generated this message. Populated from LiteLLM's cost tracking. |
+| `latency_ms` | `float \| None` | Response time in milliseconds from request to full response. |
+| `finish_reason` | `str \| None` | Why the model stopped generating. Common values: `"stop"` (natural end), `"tool_calls"` (requesting tool use), `"length"` (max tokens hit). |
+| `model` | `str \| None` | The model identifier that generated the response (e.g., `"gpt-4o"`, `"claude-3-5-sonnet-latest"`). |
+| `usage` | `dict[str, int] \| None` | Token usage statistics with keys: `prompt_tokens`, `completion_tokens`, `total_tokens`. |
+| `reasoning_content` | `str \| None` | The model's reasoning/thinking text for reasoning models (o1, o3, Claude 3.7+). `None` if not a reasoning model or reasoning not enabled. |
+| `reasoning_blocks` | `list[dict] \| None` | Provider-specific reasoning blocks (e.g., Anthropic's `thinking_blocks`). `None` if not available. |
+| `custom` | `dict[str, Any]` | Arbitrary user-defined metadata. Use for application-specific tracking (e.g., trace IDs, user context). |
+
+**Example: Tracking costs in conversation**
+```python
+# After an LLM response, add with full metadata
+conversation.add_assistant(
+    content=response.content,
+    metadata={
+        "cost": response.cost,
+        "latency_ms": response.latency_ms,
+        "model": response.model,
+        "usage": response.usage,
+        "finish_reason": "stop",
+    }
+)
+
+# Later: Calculate total conversation cost
+total_cost = sum(
+    msg.metadata.cost or 0
+    for msg in conversation.get_all_messages()
+    if msg.metadata.cost
+)
+```
+
+```python
 class ContentBlock(BaseModel):
     type: Literal["text", "image_url"]
     text: str | None = None
@@ -175,24 +214,54 @@ class Message(BaseModel):
 
 - **Initialization**: `Conversation(storage=..., strategy=...)`
 - **Add Messages**:
-  - `add_system(content)`
-  - `add_user(content, images=[])`
-  - `add_assistant(content, tool_calls=[], metadata={})`
-  - `add_tool_result(tool_call_id, content, metadata={})`
+  - `add_system(content: str) -> Message`
+  - `add_user(content: str, images: list[str] | None = None) -> Message`
+  - `add_assistant(content: str, tool_calls: list[ToolCall] | list[dict] | None = None, metadata: dict | MessageMetadata | None = None) -> Message`
+  - `add_tool_result(tool_call_id: str, content: str, metadata: dict | MessageMetadata | None = None) -> Message`
 - **Retrieval**:
-  - `get_history()`: Apply active strategy (e.g. sliding window) and return list of dicts for LLM.
-  - `get_all_messages()`: Return raw `Message` objects (no filtering).
+  - `get_history() -> list[dict]`: Apply active strategy (e.g. sliding window) and return list of dicts for LLM.
+  - `get_all_messages() -> list[Message]`: Return raw `Message` objects (no filtering). Use this when you need access to metadata, timestamps, or other fields not included in the LLM-formatted output.
+- **Utility**:
+  - `clear() -> None`: Remove all messages from the conversation.
+  - `__len__() -> int`: Return the number of messages in the conversation.
+
+#### Multimodal Support
+
+The `add_user()` method supports multimodal input via the optional `images` parameter:
+
+```python
+# Add a user message with image URLs for vision models
+conv.add_user(
+    "What's in this image?",
+    images=["https://example.com/image.png"]
+)
+```
+
+When images are provided, the message content is automatically converted to a list of `ContentBlock` objects containing both text and image URL blocks.
 
 ### 5.2 Branching & Time Travel
 
 - **`fork() -> Conversation`**:
   - Returns a new Conversation instance with a deep copy of the current history.
   - The new instance is independent (changes to it do not affect parent).
-- **`merge(branch: Conversation)`**:
+- **`merge(branch: Conversation) -> None`**:
   - Appends the *new* messages from the branch to the current conversation.
-- **`truncate(message_id: str)`**:
-  - Removes all messages *after* the specified ID.
+  - Only messages not already in this conversation are added (identified by unique ID).
+- **`truncate(message_id: str) -> None`**:
+  - Removes all messages *after* the specified ID (the message with the given ID is kept).
   - Used for "Undo" or "Retry" flows.
+  - Raises `ValueError` if message_id is not found.
+
+```python
+# Example: Undo the last user message
+msg = conv.add_user("Wrong question")
+# ... later, want to undo
+conv.truncate(previous_msg.id)  # Removes "Wrong question" and everything after
+```
+
+- **`clear() -> None`**:
+  - Removes all messages from the conversation.
+  - Useful for resetting state without creating a new Conversation instance.
 
 ### 5.3 Checkpointing
 
@@ -216,7 +285,9 @@ class Message(BaseModel):
 - **Standard Implementations**:
   - `FullHistory`: Returns identity.
   - `SlidingWindow`: Returns `system_prompt + last_n_messages`.
-  - `TokenLimitedWindow` (Optional v1.1): Returns `system_prompt + messages_fitting_token_budget`.
+- **Planned (Not Yet Implemented)**:
+  - `TokenLimitedWindow`: Returns `system_prompt + messages_fitting_token_budget`.
+  - `SummarizedHistory`: Summarizes older messages to fit token budget.
 
 ---
 
@@ -225,7 +296,7 @@ class Message(BaseModel):
 ### 6.1 Basic Usage
 
 ```python
-from rawagents.conversation import Conversation
+from rawagents.state import Conversation
 
 conv = Conversation()
 conv.add_system("You are a helpful assistant.")
@@ -313,9 +384,8 @@ src/rawagents/state/
 - Implement `Conversation` add/get methods.
 - Implement `fork()` and `truncate()` logic.
 
-### Phase 3: Strategies & Export (Day 3)
+### Phase 3: Strategies (Day 3)
 - Implement `SlidingWindow` strategy.
-- Implement `to_openai_format()` converter.
 
 ### Phase 4: Testing & Examples (Day 4)
 - Unit tests for forking (ensure deep copy).

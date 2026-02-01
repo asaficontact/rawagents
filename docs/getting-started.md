@@ -4,10 +4,12 @@ This guide shows how to install RawAgents and run your first agent loop.
 
 ## Installation
 
+**Requires Python 3.13+**
+
 RawAgents is published as a Python package:
 
 ```bash
-pip install rawagents
+pip install git+https://github.com/tawab-safi/rawagents.git
 ```
 
 You will also need an API key for at least one LLM provider (for example, OpenAI) and set it in your environment:
@@ -45,8 +47,8 @@ async def main() -> None:
     conv.add_user("Find resources to learn about agent frameworks.")
 
     async for step in loops.simple(
-        conversation=conv,
         llm=client,
+        conversation=conv,
         tools=tools,
     ):
         if step.type == "finish":

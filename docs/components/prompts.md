@@ -78,7 +78,7 @@ class PromptManager:
 | :--- | :--- |
 | **Jinja2 Engine** | Supports logic (`if`, `for`), macros, and inheritance (`extends`, `include`) for reusable prompt blocks (e.g., shared safety rules). |
 | **Strict Validation** | configured with `undefined=StrictUndefined`. Accessing a missing variable raises `PromptRenderingError`. |
-| **Custom Filters** | Pre-loaded filters for LLM needs: `to_json` (dumps dicts/Pydantic models), `role` (formats chat history). |
+| **Custom Filters** | Pre-loaded filters for LLM needs: `to_json` (dumps dicts/Pydantic models). |
 | **File-System Based** | Loads from a local directory. No database required. Compatible with standard Git workflows. |
 
 ---
@@ -139,15 +139,37 @@ You are a data extractor.
 
 ### 5.1 `PromptManager`
 
-#### `__init__(self, template_dir: str | Path, file_extension: str = ".j2")`
-*   **template_dir**: Root directory for templates.
-*   **file_extension**: Default extension to look for (optional).
+#### `__init__(self, template_dir: str | Path, file_extension: str = ".j2", *, sandbox: bool = True)`
+*   **template_dir**: Root directory for templates. Must exist and be a directory.
+*   **file_extension**: Default file extension for documentation/convention purposes (e.g., ".j2"). Note: This does not restrict which files can be loaded - it's primarily for documentation.
+*   **sandbox**: If `True` (default), uses `SandboxedEnvironment` to block arbitrary code execution in templates. Set to `False` only if you fully trust all templates (e.g., templates you control and have audited). The sandbox prevents dangerous operations like attribute access to private members or calling unsafe methods.
+
+**Raises**: `TemplateConfigError` if `template_dir` doesn't exist or isn't a directory.
 
 #### `render(self, template_name: str, **kwargs) -> str`
 *   **template_name**: Relative path to the template file (e.g., "agents/finance.j2").
 *   **kwargs**: Variables to inject into the template.
 *   **Returns**: Rendered string.
-*   **Raises**: `TemplateNotFoundError`, `PromptRenderingError` (if variable missing).
+*   **Raises**: `TemplateNotFoundError`, `PromptRenderingError` (if variable missing, syntax error, or security violation).
+
+#### `add_filter(self, name: str, func: Callable[..., Any]) -> None`
+Register a custom Jinja2 filter at runtime.
+
+*   **name**: Filter name for use in templates (e.g., "upper" for `{{ value | upper }}`).
+*   **func**: Filter function. The first argument is the value being filtered; additional arguments can be passed in the template.
+
+```python
+# Register a custom filter
+manager.add_filter("upper", str.upper)
+manager.add_filter("truncate", lambda s, length: s[:length] + "..." if len(s) > length else s)
+
+# Use in template:
+# {{ name | upper }}
+# {{ description | truncate(100) }}
+```
+
+#### `template_dir` (property)
+Returns the resolved `Path` to the template directory.
 
 ### 5.2 Default Filters
 *   `to_json(value, indent=None)`: Serializes object to JSON string. Handles Pydantic models automatically.

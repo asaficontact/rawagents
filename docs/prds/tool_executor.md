@@ -110,21 +110,14 @@ We will build a **Universal Adaptor** that:
 │  @tool                                                            │
 │  def get_weather(loc: str, user: Annotated[str, Inject]): ...     │
 │                                                                   │
-│  registry = ToolRegistry([get_weather])                           │
-│  executor = ToolExecutor(registry)                                │
+│  executor = ToolExecutor([get_weather])                           │
 └───────────────────────────────────────────────────────────────────┘
-                │                                  │
-                ▼                                  ▼
-┌──────────────────────────────┐   ┌────────────────────────────────┐
-│       Tool Registry          │   │         Tool Executor          │
-│ (Maps Name -> Callable)      │   │ (Handles Injection & Run)      │
-└──────────────────────────────┘   └────────────────────────────────┘
                 │
                 ▼
-┌──────────────────────────────┐
-│      Context Manager         │
-│  (Injects Runtime Deps)      │
-└──────────────────────────────┘
+┌──────────────────────────────────────────────────────────────────┐
+│                      Tool Executor                                │
+│  (Registry + Context Injection + Safe Execution in one class)    │
+└──────────────────────────────────────────────────────────────────┘
 ```
 
 ### 4.2 The Data Model
@@ -132,17 +125,56 @@ We will build a **Universal Adaptor** that:
 The component relies on shared types for compatibility with `llm` and `state`.
 
 ```python
-# From rawagents._shared.types
-from rawagents._shared.types import ToolCall
+# From rawagents.utils.types
+from rawagents.utils.types import ToolCall, ToolResult
 
-# New type (To be added to _shared/types.py)
-class ToolResult(BaseModel):
-    tool_call_id: str
-    name: str
-    content: str  # The output (JSON or Text)
-    is_error: bool = False
-    metadata: dict[str, Any] = {}  # For metrics (latency, etc)
+### ToolCall Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `str` | Unique identifier for this tool call. Used to match results with requests. |
+| `name` | `str` | The name of the tool/function to call. Matches the registered tool name. |
+| `arguments` | `dict[str, Any]` | The parsed arguments as a dictionary. Values are JSON-compatible types. |
+
+**Example:**
+```python
+tool_call = ToolCall(
+    id="call_abc123",
+    name="search_database",
+    arguments={"query": "latest orders", "limit": 10}
+)
 ```
+
+### ToolResult Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `tool_call_id` | `str` | ID matching the original `ToolCall.id` this responds to. Required for conversation history. |
+| `name` | `str` | Name of the tool that was executed. |
+| `content` | `str` | Output as a string. Complex types are JSON-serialized. |
+| `is_error` | `bool` | `True` if execution failed. The `content` field contains the error message. Default: `False`. |
+
+**Example: Successful result**
+```python
+result = ToolResult(
+    tool_call_id="call_abc123",
+    name="search_database",
+    content='[{"id": 1, "item": "Widget"}]',
+    is_error=False
+)
+```
+
+**Example: Error result**
+```python
+result = ToolResult(
+    tool_call_id="call_abc123",
+    name="search_database",
+    content="Tool 'search_database' raised ConnectionError: Database unavailable",
+    is_error=True
+)
+```
+
+**Note:** The `ToolExecutor` guarantees that execution NEVER raises exceptions. All errors are captured and returned as `ToolResult` with `is_error=True`.
 
 ---
 
@@ -168,9 +200,50 @@ class ToolResult(BaseModel):
 
 ### 5.2 Tool Registry
 
-- **Registration**: `registry.register(tool)`
-- **Schema Export**: `registry.get_schemas()` -> List[dict] (OpenAI format).
-- **Lookup**: `registry.get(name)` -> Tool.
+The `ToolExecutor` includes built-in registry functionality for managing tools dynamically.
+
+#### `register(self, func: Callable[..., Any]) -> None`
+Register a `@tool` decorated function at runtime.
+
+*   **func**: A function decorated with `@tool`.
+*   **Raises**: `ValueError` if the function is not decorated with `@tool`, or if a tool with the same name is already registered.
+
+```python
+@tool
+def new_tool(query: str) -> str:
+    """A dynamically registered tool."""
+    return f"Result for: {query}"
+
+executor = ToolExecutor([existing_tool])
+executor.register(new_tool)  # Add tool after initialization
+```
+
+#### `unregister(self, name: str) -> None`
+Remove a tool from the registry by name.
+
+*   **name**: The tool name to unregister.
+*   **Raises**: `KeyError` if the tool is not registered.
+
+```python
+executor.unregister("old_tool")  # Remove tool dynamically
+```
+
+#### `get_schemas() -> list[dict]`
+Get OpenAI-compatible schemas for all registered tools.
+
+#### `get_tool_names() -> list[str]`
+Get names of all registered tools.
+
+#### `__len__() -> int`
+Return the number of registered tools.
+
+#### `__contains__(name: str) -> bool`
+Check if a tool is registered by name.
+
+```python
+if "search" in executor:
+    print("Search tool is available")
+```
 
 ### 5.3 Execution Flow
 
@@ -189,7 +262,7 @@ class ToolResult(BaseModel):
 ### 6.1 Defining Tools
 
 ```python
-from rawagents.tools import tool, ToolContext, Inject
+from rawagents.tools import tool, Inject
 from typing import Annotated
 
 @tool
@@ -201,15 +274,14 @@ def search_db(query: str, db: Annotated[Database, Inject]):
 ### 6.2 Executing Tools
 
 ```python
-from rawagents.tools import ToolRegistry, ToolExecutor
-from rawagents._shared.types import ToolCall
+from rawagents.tools import ToolExecutor
+from rawagents.utils.types import ToolCall
 
 # Setup
-registry = ToolRegistry([search_db])
-executor = ToolExecutor(registry)
+executor = ToolExecutor([search_db])
 
 # Get Schemas for LLM
-schemas = registry.get_schemas() 
+schemas = executor.get_schemas()
 # Note: 'db' parameter is HIDDEN from schema because it's Injected
 
 # Runtime
@@ -239,10 +311,8 @@ executor = ToolExecutor(registry, middleware=[log_middleware])
 ```text
 src/rawagents/tools/
 ├── __init__.py           # Exports
-├── executor.py           # ToolExecutor class
-├── registry.py           # ToolRegistry class
+├── executor.py           # ToolExecutor class (includes registry functionality)
 ├── decorators.py         # @tool decorator
-├── base.py               # BaseTool protocol
 ├── types.py              # ToolResult (re-exported from utils if moved), Context
 └── converters.py         # Pydantic -> JSON Schema logic
 ```

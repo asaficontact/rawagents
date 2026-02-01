@@ -51,7 +51,7 @@ A **monolithic AI components library** starting with a Universal LLM Client as t
 | **API to use** | `litellm.completion()` (Chat Completions) | More reliable, works with all 100+ providers, mature Instructor integration. Responses API is OpenAI-only and still in beta. |
 | **Packaging** | Monolithic library | Simpler to maintain, components share code, one install. Can split later if needed. |
 | **Streaming scope** | Text-only streaming | Streaming with tools/structured output adds complexity. Keep separate for v1.0. |
-| **Sync/Async** | Two separate client classes | `LLMClient` (sync) and `AsyncLLMClient` (async) for clarity. |
+| **Sync/Async** | Two separate client classes | `LLM` (sync) and `AsyncLLM` (async) for clarity. |
 | **Instructor integration** | `instructor.from_litellm()` | Proven reliable pattern. Do NOT use `instructor.from_provider("litellm/...")` - it had issues until recently and should be avoided for stability. |
 | **Tool execution** | Client returns tool calls only | Tool execution belongs in agent/orchestrator layer. Keeps client focused and composable. |
 
@@ -243,14 +243,14 @@ cost = raw._hidden_params.get("response_cost")
 ```
 ┌─────────────────────────────────────────────────────────────────┐
 │                      Your Application                           │
-│   from rawagents import LLMClient                  │
+│   from rawagents import LLM                        │
 └─────────────────────────────────────────────────────────────────┘
                               │
                               ▼
 ┌─────────────────────────────────────────────────────────────────┐
-│                 rawagents.llm_client                        │
+│                 rawagents.llm                               │
 │  ┌────────────────────────┐  ┌─────────────────────────────┐   │
-│  │  LLM          │  │  AsyncLLM          │   │
+│  │  LLM                │  │  AsyncLLM                 │   │
 │  │  (Sync)                │  │  (Async)                    │   │
 │  │                        │  │                             │   │
 │  │  • complete()          │  │  • complete()               │   │
@@ -285,7 +285,7 @@ cost = raw._hidden_params.get("response_cost")
 
 ### 4.2 Design Principles
 
-1. **Two Clients, Not One**: Separate `LLMClient` (sync) and `AsyncLLMClient` (async) rather than mixing patterns
+1. **Two Clients, Not One**: Separate `LLM` (sync) and `AsyncLLM` (async) rather than mixing patterns
 2. **Composition Over Configuration**: Use Instructor for structured output, LiteLLM for everything else
 3. **Streaming is Separate**: `stream()` only returns text chunks, no tools or structured output
 4. **Explicit Over Implicit**: Methods clearly indicate what they do (`complete_structured`, `complete_with_tools`)
@@ -297,7 +297,6 @@ cost = raw._hidden_params.get("response_cost")
 | `complete()` | No | Yes | Basic text completion |
 | `complete_structured()` | Yes | Via Instructor | Pydantic model extraction |
 | `complete_with_tools()` | No | Yes | Function/tool calling |
-| `complete_with_tools_structured()` | Yes | Via Instructor | Tools + structured response |
 | `stream()` | No | Yes | Text streaming only |
 
 ---
@@ -325,31 +324,59 @@ Any LiteLLM-supported provider works automatically:
 ### 5.2 Response Types
 
 ```python
-from dataclasses import dataclass
+from pydantic import BaseModel
 from typing import Any, Optional
 
-@dataclass
-class LLMResponse:
+class LLMResponse(BaseModel):
     """Standard response from completion calls."""
     content: str
     model: str
     usage: dict  # {prompt_tokens, completion_tokens, total_tokens}
-    cost: Optional[float]  # In USD, from LiteLLM
+    cost: Optional[float] = None  # In USD, from LiteLLM
     latency_ms: float
-    raw_response: Any  # Original LiteLLM response
+    raw_response: Any = None  # Original LiteLLM response
+    reasoning_content: Optional[str] = None  # Chain-of-thought for reasoning models
+    reasoning_blocks: Optional[list[dict]] = None  # Provider-specific reasoning blocks
 
-@dataclass
-class ToolCall:
+class ToolCall(BaseModel):
     """Represents a tool/function call from the model."""
     id: str
     name: str
     arguments: dict
 
-@dataclass
 class ToolResponse(LLMResponse):
     """Response that includes tool calls."""
-    tool_calls: list[ToolCall]
+    tool_calls: list[ToolCall] = []
 ```
+
+#### LLMResponse Field Reference
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `content` | `str` | The text content of the response. Empty string if no text. |
+| `model` | `str` | Model identifier that generated the response. |
+| `usage` | `dict[str, int]` | Token counts: `prompt_tokens`, `completion_tokens`, `total_tokens`. |
+| `cost` | `float \| None` | Estimated USD cost from LiteLLM. `None` if unavailable. |
+| `latency_ms` | `float` | Request latency in milliseconds. |
+| `raw_response` | `Any` | Original LiteLLM response for advanced use cases. |
+| `reasoning_content` | `str \| None` | Model's reasoning/thinking text (reasoning models only). |
+| `reasoning_blocks` | `list[dict] \| None` | Provider-specific reasoning blocks (e.g., Anthropic thinking_blocks). |
+
+#### ToolCall Field Reference
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `str` | Unique identifier for this tool call. Used to match results. |
+| `name` | `str` | Name of the tool/function to call. |
+| `arguments` | `dict[str, Any]` | Parsed arguments as a dictionary. |
+
+#### ToolResponse Field Reference
+
+Inherits all fields from `LLMResponse` plus:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `tool_calls` | `list[ToolCall]` | List of tool calls requested by the model. Empty if none. |
 
 ### 5.3 Tool Definition
 
@@ -381,7 +408,43 @@ for chunk in client.stream(model="openai/gpt-4o", messages=[...]):
 - Structured output
 - These require non-streaming methods
 
-### 5.5 Retry Behavior
+### 5.5 Reasoning Models
+
+The client supports reasoning models that expose chain-of-thought via the `reasoning_effort` parameter.
+
+#### Supported Models
+
+| Provider | Models | Notes |
+|----------|--------|-------|
+| OpenAI | `o1`, `o1-mini`, `o3-mini` | Full reasoning support |
+| Anthropic | Claude 3.7+ (Sonnet/Opus) | Via `thinking_blocks` |
+| Google | Gemini 2.5+ | Extended thinking |
+
+#### reasoning_effort Parameter
+
+| Value | Description | Use Case |
+|-------|-------------|----------|
+| `"low"` | Quick reasoning, minimal depth | Simple queries, fast responses |
+| `"medium"` | Balanced reasoning | General problem-solving |
+| `"high"` | Deep reasoning, thorough analysis | Complex math, code review |
+
+**Example:**
+```python
+response = client.complete(
+    model="openai/o3-mini",
+    messages=[{"role": "user", "content": "Solve: 2x + 5 = 13"}],
+    reasoning_effort="medium"
+)
+
+print(response.content)           # The answer
+print(response.reasoning_content) # The thinking process
+```
+
+Works with all methods: `complete()`, `complete_structured()`, `complete_with_tools()`.
+
+**Note:** LiteLLM maps `reasoning_effort` to provider-specific parameters automatically. If passed to a non-reasoning model, behavior varies by provider (may be ignored or raise an error).
+
+### 5.6 Retry Behavior
 
 The client has **two independent retry systems** that work together:
 
@@ -403,36 +466,6 @@ The client has **two independent retry systems** that work together:
 - Each retry is a new API call (costs tokens)
 
 **Important:** These are separate systems. A request might succeed at the API level but fail validation, triggering Instructor retries. Or it might fail at the API level (rate limit) and be retried by LiteLLM before even reaching Instructor.
-
-### 5.6 Cost Tracking Caveats
-
-**Azure Cost Tracking Issue:**
-Azure returns generic model names (e.g., `gpt-4`) in responses instead of the specific deployment name, causing inaccurate cost calculation.
-
-**Fix:** Set `base_model` in your configuration:
-```python
-config = LLMConfig(
-    model="azure/my-gpt4-deployment",
-    model_info={
-        "azure/my-gpt4-deployment": {
-            "base_model": "azure/gpt-4-1106-preview"
-        }
-    }
-)
-```
-
-**Custom Pricing:**
-For models not in LiteLLM's cost map, set custom pricing:
-```python
-config = LLMConfig(
-    model_info={
-        "custom/my-model": {
-            "input_cost_per_token": 0.00001,
-            "output_cost_per_token": 0.00003
-        }
-    }
-)
-```
 
 ### 5.7 Fallback Support
 
@@ -460,10 +493,10 @@ The client will try models in order until one succeeds. Fallbacks are triggered 
 ### 6.1 Client Initialization
 
 ```python
-from rawagents import LLMClient, AsyncLLMClient, LLMConfig
+from rawagents import LLM, AsyncLLM, LLMConfig
 
 # Minimal - uses environment variables
-client = LLMClient()
+client = LLM()
 
 # With configuration
 config = LLMConfig(
@@ -473,20 +506,10 @@ config = LLMConfig(
     timeout=60,
     fallbacks=["anthropic/claude-3-5-sonnet-latest"],  # Fallback models
 )
-client = LLMClient(config=config)
+client = LLM(config=config)
 
 # Async client
-async_client = AsyncLLMClient(config=config)
-
-# Advanced configuration with model-specific settings
-config = LLMConfig(
-    model="azure/my-gpt4-deployment",
-    model_info={
-        "azure/my-gpt4-deployment": {
-            "base_model": "azure/gpt-4-1106-preview"  # For accurate cost tracking
-        }
-    }
-)
+async_client = AsyncLLM(config=config)
 ```
 
 ### 6.2 Basic Completion
@@ -616,28 +639,7 @@ if response.tool_calls:
 
 These are Agent concerns, not LLM client concerns.
 
-### 6.5 Tools + Structured Output Combined
-
-```python
-class WeatherReport(BaseModel):
-    location: str
-    temperature: int
-    summary: str
-
-# Get structured response after tool execution
-result, tool_calls = client.complete_with_tools_structured(
-    model="openai/gpt-4o",
-    messages=[
-        {"role": "user", "content": "Weather in NYC?"},
-        # ... previous tool call messages ...
-        {"role": "tool", "tool_call_id": "...", "content": weather_data}
-    ],
-    tools=[GetWeather],
-    response_model=WeatherReport,
-)
-```
-
-### 6.6 Streaming (Text Only)
+### 6.5 Streaming (Text Only)
 
 ```python
 # Sync - returns Iterator[str]
@@ -703,9 +705,9 @@ ai-components/
 # src/rawagents/__init__.py
 """AI Components - Reusable building blocks for AI systems."""
 
-from rawagents.llm_client import (
-    LLMClient,
-    AsyncLLMClient,
+from rawagents.llm import (
+    LLM,
+    AsyncLLM,
     LLMConfig,
     LLMResponse,
     ToolCall,
@@ -726,7 +728,7 @@ __all__ = [
 
 This enables clean imports:
 ```python
-from rawagents import LLMClient
+from rawagents import LLM
 ```
 
 ### 7.3 pyproject.toml
@@ -833,14 +835,14 @@ pip install git+https://github.com/yourusername/ai-components.git
 ## Quick Start
 
 ```python
-from rawagents import LLMClient
+from rawagents import LLM
 from pydantic import BaseModel
 
 # Set your API key
 # export OPENAI_API_KEY=sk-...
 
 # Simple completion
-client = LLMClient()
+client = LLM()
 response = client.complete(
     model="openai/gpt-4o-mini",
     messages=[{"role": "user", "content": "Hello!"}]
@@ -954,7 +956,7 @@ from .tools import pydantic_to_tool_schema
 
 T = TypeVar('T', bound=BaseModel)
 
-class LLMClient:
+class LLM:
     """Synchronous universal LLM client.
 
     This client handles LLM communication only. It does NOT:
@@ -1215,10 +1217,9 @@ def test_complete_returns_response():
         
         client = LLM()
         response = client.complete(
-            model="openai/gpt-4o",
             messages=[{"role": "user", "content": "Hi"}]
         )
-        
+
         assert response.content == "Hello!"
         assert response.cost == 0.001
 ```
@@ -1233,9 +1234,8 @@ import os
 @pytest.mark.integration
 @pytest.mark.skipif(not os.getenv("OPENAI_API_KEY"), reason="No API key")
 def test_openai_real_completion():
-    client = LLM()
+    client = LLM(model="openai/gpt-4o-mini")
     response = client.complete(
-        model="openai/gpt-4o-mini",
         messages=[{"role": "user", "content": "Say 'test'"}],
         max_tokens=10
     )

@@ -1,10 +1,10 @@
 # Loops Component
 
-The transparent control logic for Unchained agents.
+The transparent control logic for  rawagents.
 
 ## Overview
 
-The Loops Component (`unchained.loops`) orchestrates the interaction between the LLM (Brain), Conversation (State), and Tools (Hands). Unlike other frameworks that hide the execution logic inside black-box classes, Unchained uses **Generator Functions**.
+The Loops Component (`rawagents.loops`) orchestrates the interaction between the LLM (Brain), Conversation (State), and Tools (Hands). RawAgents uses **Generator Functions** that yield at every step, keeping orchestration visible and controllable.
 
 This means the loop yields its status at every step, giving you:
 *   **Total Visibility:** See exactly what the agent is thinking and doing in real-time.
@@ -17,30 +17,30 @@ This means the loop yields its status at every step, giving you:
 
 ```python
 import asyncio
-from unchained import loops, llm, state, tools
+from rawagents import loops, AsyncLLM, Conversation, ToolExecutor
 
 async def main():
     # 1. Initialize Components
-    brain = llm.AsyncLLM()
-    memory = state.Conversation()
-    toolkit = tools.ToolExecutor([my_tool])
-    
+    brain = AsyncLLM()
+    memory = Conversation()
+    toolkit = ToolExecutor([my_tool])
+
     memory.add_user("Help me with...")
 
     # 2. Run the Loop
     # The loop is a GENERATOR. It yields control back to you.
     async for step in loops.simple(brain, memory, toolkit):
-        
+
         if step.type == "thought":
-            print(f"🤖 Thinking: {step.content}")
-            
+            print(f"Thinking: {step.content}")
+
         elif step.type == "tool_call":
-            print(f"🛠️ Calling: {step.tool_calls}")
-            
+            print(f"Calling: {step.tool_calls}")
+
         elif step.type == "tool_result":
-            print(f"✅ Result: {step.tool_results}")
-            
-    print(f"🏁 Final: {memory.last_message.content}")
+            print(f"Result: {step.tool_results}")
+
+    print(f"Final: {memory.last_message.content}")
 
 if __name__ == "__main__":
     asyncio.run(main())
@@ -76,7 +76,7 @@ async for step in runner:
 Control loop behavior with the `LoopConfig` object.
 
 ```python
-from unchained.loops import LoopConfig
+from rawagents.loops import LoopConfig
 
 config = LoopConfig(
     max_steps=30,           # Safety limit (default: 15)
@@ -106,8 +106,8 @@ Every step yielded by the loop is a `LoopStep` Pydantic model.
 
 ## Integration
 
-The `loops` component is designed to work seamlessly with the Unchained ecosystem:
-*   **State:** Automatically reads history from and writes results to `unchained.state`.
-*   **Tools:** Automatically fetches schemas from `unchained.tools` (unless overridden).
-*   **LLM:** Handles retries and provider abstraction via `unchained.llm`.
+The `loops` component is designed to work seamlessly with the rawagents ecosystem:
+*   **State:** Automatically reads history from and writes results to `rawagents.state`.
+*   **Tools:** Automatically fetches schemas from `rawagents.tools` (unless overridden).
+*   **LLM:** Handles retries and provider abstraction via `rawagents.llm`.
 

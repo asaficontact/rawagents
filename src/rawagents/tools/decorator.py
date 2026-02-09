@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import asyncio
 import inspect
+import types
 from functools import wraps
 from typing import (
     Annotated,
@@ -24,6 +25,7 @@ from pydantic import BaseModel
 from rawagents.tools.exceptions import ToolDefinitionError
 from rawagents.tools.schema import generate_tool_schema
 from rawagents.tools.types import Inject
+
 
 __all__ = ["tool"]
 
@@ -78,8 +80,8 @@ def _is_json_compatible(type_hint: Any) -> bool:
             return args[0] is str and _is_json_compatible(args[1])
         return True
 
-    # Handle Union (including Optional)
-    if origin is Union:
+    # Handle Union (including Optional) and PEP 604 X | Y syntax
+    if origin is Union or origin is types.UnionType:
         return all(_is_json_compatible(a) for a in args)
 
     # Handle Pydantic models

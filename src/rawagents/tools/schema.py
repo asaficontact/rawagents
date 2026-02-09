@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import inspect
 import re
+import types
 from typing import (
     Annotated,
     Any,
@@ -16,6 +17,7 @@ from typing import (
 )
 
 from pydantic import BaseModel
+
 
 __all__ = [
     "generate_tool_schema",
@@ -86,8 +88,8 @@ def type_to_json_schema(type_hint: Any) -> dict[str, Any]:
             schema["additionalProperties"] = True
         return schema
 
-    # Handle Union (including Optional which is Union[T, None])
-    if origin is Union:
+    # Handle Union (including Optional which is Union[T, None]) and PEP 604 X | Y
+    if origin is Union or origin is types.UnionType:
         # Filter out None for optional handling
         non_none_args = [a for a in args if a is not type(None)]
         if len(non_none_args) == 1:

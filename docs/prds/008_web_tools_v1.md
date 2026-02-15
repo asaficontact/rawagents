@@ -1,9 +1,9 @@
 # Product Requirements Document (PRD)
 # RawAgents Built-in Web Tools
 
-**Version:** 2.1
+**Version:** 2.3
 **Date:** February 2026
-**Status:** Draft (v2.1 — Added 10 system diagrams for implementation clarity)
+**Status:** Draft (v2.3 — Dev team review complete: all issues fixed, FAQ added, implementation-ready)
 **Author:** Tawab Safi
 
 ---
@@ -23,6 +23,7 @@
 11. [Project Structure](#11-project-structure)
 12. [Development Process](#12-development-process)
 13. [Error Handling and Logging](#13-error-handling-and-logging)
+14. [Developer FAQ & Design Decisions](#14-developer-faq--design-decisions)
 
 ---
 
@@ -48,7 +49,7 @@ Following RawAgents' **"Primitives over Frameworks"** philosophy, each tool is:
 | **Content Processing** | `ContentProcessor` Protocol — first-class extensibility hook | Users can add post-fetch processing (trust checks, extraction) without modifying tools |
 | **HTTP Client** | `httpx` async | Matches RawAgents async-first architecture; supports HTTP/2 |
 | **HTML Conversion** | `markdownify` library | Python equivalent of Turndown (used by Claude Code & OpenCode) |
-| **Caching** | 15-minute in-memory TTL | Balances freshness with performance; per-session lifecycle |
+| **Caching** | 15-minute in-memory TTL | Balances freshness with performance; module-level singleton per-process |
 | **Output Formats** | Markdown (default), Text, HTML | Same as OpenCode |
 | **Redirect Handling** | Flag in output, not auto-follow cross-host | Prevents auth/CSRF issues on cross-host redirects |
 | **SSRF Prevention** | Private IP blocking + domain blocklist | Defense-in-depth against internal network attacks |
@@ -478,6 +479,7 @@ Fetch the new URL directly if needed: https://newhost.com/page
   - Max text output: 100,000 characters
   - Error if exceeded: `"Error: Response exceeds 5MB size limit"`
   - If text truncated: append `"[Content truncated at 100KB...]"`
+  - **Enforcement strategy**: Use httpx streaming to avoid buffering oversized responses into memory. Read the response in chunks, tracking total bytes. Abort early if the 5MB threshold is crossed. This prevents OOM on very large responses (e.g., database dumps). If `Content-Length` header is present and exceeds 5MB, reject immediately without reading the body.
 
 - **Content Conversion**:
   - **Markdown** (default): HTML→Markdown via markdownify (ATX heading style)
@@ -782,10 +784,14 @@ Fetch https://github.com → Redirects to https://attacker.com?token=xxx
 ```
 
 Mitigation:
-- Flag cross-host redirects in output
-- Do NOT auto-follow cross-host redirects
-- Require agent to explicitly fetch redirect target
+- Follow redirects internally (httpx `follow_redirects=True`), but detect cross-host redirects
+- If final host differs from original host, flag in output instead of returning content
+- Agent must explicitly fetch the redirect target URL (returned in the flag message)
 - Log all redirects for audit
+
+Note: httpx follows same-host redirects transparently. Cross-host redirects are detected
+*after* following, then flagged to the agent. This is the practical approach — blocking all
+cross-host redirects would break many legitimate URLs (e.g., URL shorteners, CDN redirects).
 
 ### 6.3 WebContext — Unified Configuration
 
@@ -829,7 +835,7 @@ import socket
 import warnings
 from collections import defaultdict
 from dataclasses import dataclass, field
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Optional, TYPE_CHECKING
 from urllib.parse import urlparse
 
@@ -1085,7 +1091,7 @@ class WebContext:
         Raises:
             RateLimitExceededError: If rate limit exceeded.
         """
-        now = datetime.utcnow()
+        now = datetime.now(timezone.utc)
         one_minute_ago = now - timedelta(minutes=1)
 
         limit = (
@@ -1113,20 +1119,30 @@ class WebContext:
     # ── Private Helpers ───────────────────────────────────────
 
     def _is_domain_blocked(self, domain: str) -> bool:
-        """Check if domain is in blocklist."""
+        """Check if domain is in blocklist.
+
+        Uses exact match or subdomain suffix match (NOT substring).
+        Blocking "example.com" blocks "example.com" and "sub.example.com"
+        but NOT "not-example.com" or "myexample.com".
+        """
         domain_lower = domain.lower()
         for blocked in self.blocked_domains:
-            if blocked in domain_lower or domain_lower.endswith("." + blocked):
+            if domain_lower == blocked or domain_lower.endswith("." + blocked):
                 return True
         return False
 
     def _is_domain_allowed(self, domain: str) -> bool:
-        """Check if domain is in allowlist."""
+        """Check if domain is in allowlist.
+
+        Uses exact match or subdomain suffix match (NOT substring).
+        Allowing "example.com" allows "example.com" and "sub.example.com"
+        but NOT "not-example.com" or "myexample.com".
+        """
         if not self.allowed_domains:
             return True
         domain_lower = domain.lower()
         for allowed in self.allowed_domains:
-            if allowed in domain_lower or domain_lower.endswith("." + allowed):
+            if domain_lower == allowed or domain_lower.endswith("." + allowed):
                 return True
         return False
 
@@ -1337,7 +1353,74 @@ flowchart TD
     style ALLOW fill:#c8e6c9,stroke:#388e3c
 ```
 
-### 6.5 Domain Filtering
+### 6.5 Known Security Limitations (v1)
+
+The following are **known limitations** of the v1 SSRF prevention model. They are documented here for transparency and are acceptable trade-offs for v1 given the added implementation complexity of full mitigation. Each includes a recommended v2 fix.
+
+#### 6.5.1 DNS Rebinding / TOCTOU Vulnerability
+
+**Severity:** HIGH (documented, accepted for v1)
+
+**Description:** The SSRF prevention resolves DNS once via `_resolve_hostname()` to check the IP, then passes the *original URL string* to httpx, which performs its own DNS resolution when connecting. An attacker can exploit this Time-Of-Check to Time-Of-Use (TOCTOU) gap with DNS rebinding:
+
+1. Attacker configures their domain with a 0-second DNS TTL
+2. First DNS lookup (security check) returns a public IP → passes validation
+3. Second DNS lookup (httpx connect) returns `127.0.0.1` → bypasses check
+4. The time gap between `_resolve_hostname()` and `httpx.get()` is the race window
+
+**Reference:** This is the same vulnerability class as [AutoGPT CVE-2025-31490](https://github.com/Significant-Gravitas/AutoGPT/security/advisories/GHSA-wvjg-9879-3m7w).
+
+**Mitigation for v1:** The risk is partially mitigated by:
+- Most DNS resolvers cache results (attacker needs 0-TTL DNS)
+- `allow_private_ips=False` (default) means the attacker needs precise timing
+- Agents typically run in environments where internal services aren't high-value targets
+
+**Fix for v2 (TODO):** Resolve DNS once, then connect to the validated IP directly by setting `extensions={"sni_hostname": hostname}` in httpx or using a custom transport that pins the resolved IP. This eliminates the TOCTOU gap entirely.
+
+```python
+# v2 approach: DNS pinning (pseudocode)
+ip = await self._resolve_hostname(hostname)
+self._check_ip(ip)  # SSRF check
+# Connect to the VALIDATED IP, not the hostname
+response = await client.get(
+    url.replace(hostname, ip),
+    headers={"Host": hostname},
+    extensions={"sni_hostname": hostname},
+)
+```
+
+#### 6.5.2 Redirect Chain SSRF Bypass
+
+**Severity:** MEDIUM (documented, accepted for v1)
+
+**Description:** SSRF checks (Layer 1) apply only to the **initial URL**. httpx follows up to 5 redirect hops internally. An attacker could craft a redirect chain where an intermediate hop targets a private IP:
+
+```
+public.com → public.com/redir → http://10.0.0.1/admin → public.com/result
+```
+
+The initial URL (`public.com`) passes validation, but the intermediate hop to `10.0.0.1` is followed by httpx without SSRF checking.
+
+**Mitigation for v1:** The risk is partially mitigated by:
+- Cross-host redirects to the *final* URL are detected and flagged
+- Most real-world redirect chains don't target private IPs
+- The attacker needs to control the initial server to craft redirects
+
+**Fix for v2 (TODO):** Use `follow_redirects=False` in httpx and manually follow redirects, validating each hop's URL through `WebContext.validate_url()` before following:
+
+```python
+# v2 approach: per-hop validation (pseudocode)
+for hop in range(max_redirects):
+    response = await client.get(url, follow_redirects=False)
+    if response.is_redirect:
+        redirect_url = str(response.next_request.url)
+        await ctx.validate_url(redirect_url)  # SSRF check on each hop
+        url = redirect_url
+    else:
+        break
+```
+
+### 6.6 Domain Filtering
 
 #### Allowlist Mode
 
@@ -1363,7 +1446,7 @@ set_web_context(ctx)
 # Allowed: everything else
 ```
 
-### 6.6 Rate Limiting Strategy
+### 6.7 Rate Limiting Strategy
 
 ```python
 ctx = WebContext(
@@ -1467,7 +1550,7 @@ class HaikuExtractionProcessor:
         # Skip processing for trusted domains
         from urllib.parse import urlparse
         domain = urlparse(url).hostname or ""
-        if any(trusted in domain for trusted in self.TRUSTED_DOMAINS):
+        if any(domain == trusted or domain.endswith("." + trusted) for trusted in self.TRUSTED_DOMAINS):
             return content
 
         # No prompt = no extraction needed
@@ -1922,10 +2005,15 @@ def _extract_domain(url: str) -> str:
 
 
 def _domain_matches(domain: str, domain_list: list[str]) -> bool:
-    """Check if domain matches any entry in list (including subdomains)."""
+    """Check if domain matches any entry in list (exact or subdomain).
+
+    Uses exact match or subdomain suffix — NOT substring.
+    "example.com" matches "example.com" and "sub.example.com"
+    but NOT "not-example.com" or "myexample.com".
+    """
     domain_lower = domain.lower()
     return any(
-        d.lower() in domain_lower or domain_lower.endswith("." + d.lower())
+        domain_lower == d.lower() or domain_lower.endswith("." + d.lower())
         for d in domain_list
     )
 ```
@@ -2030,6 +2118,25 @@ async def get_http_client(
 
 ### 8.6 Caching Strategy
 
+**Cache Lifecycle:** The `AsyncTTLCache` is a **module-level singleton** (like `ProcessManager` in the shell module). It is created lazily on first `web_fetch` call and shared across all `WebContext` instances. The singleton uses the `cache_ttl` and `cache_max_size` from the *active* `WebContext` at creation time.
+
+```python
+# Module-level singleton (in web_fetch.py)
+_url_cache: Optional[AsyncTTLCache] = None
+
+def _get_cache(ctx: WebContext) -> AsyncTTLCache:
+    """Get or create the module-level URL cache singleton."""
+    global _url_cache
+    if _url_cache is None:
+        _url_cache = AsyncTTLCache(
+            max_size=ctx.cache_max_size,
+            ttl=ctx.cache_ttl,
+        )
+    return _url_cache
+```
+
+**Rationale:** A module-level singleton is more efficient (fewer duplicate fetches when agents use multiple contexts) and matches the shell module's `ProcessManager` pattern. The cache is per-session (not persistent) — it lives only as long as the Python process.
+
 **File:** `rawagents/tools/builtin/web/_cache.py`
 
 ```python
@@ -2039,7 +2146,7 @@ from __future__ import annotations
 
 import asyncio
 from dataclasses import dataclass
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 
@@ -2053,7 +2160,7 @@ class CacheEntry:
     def is_expired(self) -> bool:
         if self.ttl_seconds == 0:
             return False
-        elapsed = (datetime.utcnow() - self.timestamp).total_seconds()
+        elapsed = (datetime.now(timezone.utc) - self.timestamp).total_seconds()
         return elapsed > self.ttl_seconds
 
 
@@ -2119,7 +2226,7 @@ class AsyncTTLCache:
 
             self.cache[url] = CacheEntry(
                 content=content,
-                timestamp=datetime.utcnow(),
+                timestamp=datetime.now(timezone.utc),
                 ttl_seconds=self.ttl,
             )
 
@@ -2379,6 +2486,132 @@ tests/tools/builtin/web/
 └── conftest.py                 # Fixtures (mock providers, mock processor, etc.)
 ```
 
+### 10.4 Test Fixtures (conftest.py)
+
+**File:** `tests/tools/builtin/web/conftest.py`
+
+```python
+"""Shared test fixtures for web tools tests.
+
+Follows the same fixture pattern as shell tools (conftest.py).
+"""
+
+from __future__ import annotations
+
+import pytest
+from unittest.mock import AsyncMock
+
+from rawagents.tools.builtin.web import (
+    WebContext,
+    set_web_context,
+    SearchResult,
+)
+from rawagents.tools.builtin.web._cache import AsyncTTLCache
+
+
+# ── WebContext Fixtures ──────────────────────────────────────
+
+
+@pytest.fixture
+def web_context():
+    """Default WebContext with permissive settings for testing."""
+    ctx = WebContext(
+        allow_localhost=True,
+        allow_private_ips=True,
+        max_requests_per_minute=100,
+        max_search_per_minute=100,
+        cache_ttl=0,  # Disable caching in tests by default
+    )
+    set_web_context(ctx)
+    yield ctx
+    set_web_context(None)  # Clean up
+
+
+@pytest.fixture
+def restricted_context():
+    """Locked-down WebContext for security tests."""
+    ctx = WebContext(
+        allowed_domains=["docs.python.org", "github.com"],
+        blocked_domains=["evil.com", "attacker.net"],
+        allow_localhost=False,
+        allow_private_ips=False,
+    )
+    set_web_context(ctx)
+    yield ctx
+    set_web_context(None)
+
+
+# ── Mock Search Provider ─────────────────────────────────────
+
+
+class MockSearchProvider:
+    """Mock search provider for unit tests."""
+
+    def __init__(self, results: list[SearchResult] | None = None):
+        self._results = results or [
+            SearchResult(
+                title="Test Result",
+                url="https://example.com",
+                snippet="A test search result.",
+                source="mock",
+            ),
+        ]
+
+    async def search(
+        self,
+        query: str,
+        *,
+        num_results: int = 10,
+        allowed_domains: list[str] | None = None,
+        blocked_domains: list[str] | None = None,
+    ) -> list[SearchResult]:
+        return self._results[:num_results]
+
+    @property
+    def name(self) -> str:
+        return "mock"
+
+
+@pytest.fixture
+def mock_provider():
+    """Mock SearchProvider for web_search tests."""
+    return MockSearchProvider()
+
+
+# ── Mock Content Processor ───────────────────────────────────
+
+
+class MockContentProcessor:
+    """Mock ContentProcessor that tracks calls."""
+
+    def __init__(self):
+        self.calls: list[dict] = []
+
+    async def process(
+        self, content: str, url: str, prompt: str, format: str
+    ) -> str:
+        self.calls.append({
+            "content": content, "url": url,
+            "prompt": prompt, "format": format,
+        })
+        return f"[PROCESSED] {content[:100]}"
+
+
+@pytest.fixture
+def mock_processor():
+    """Mock ContentProcessor for web_fetch tests."""
+    return MockContentProcessor()
+
+
+# ── Cache Fixture ────────────────────────────────────────────
+
+
+@pytest.fixture
+def cache():
+    """Fresh AsyncTTLCache for cache tests."""
+    return AsyncTTLCache(max_size=10, ttl=60)
+```
+
 ---
 
 ## 11. Project Structure
@@ -2554,7 +2787,23 @@ __all__ = [
 ]
 ```
 
-### 11.2 Update builtin/__init__.py
+### 11.2 Provider Exports
+
+**File:** `src/rawagents/tools/builtin/web/providers/__init__.py`
+
+```python
+"""Search providers for RawAgents web tools.
+
+Only BraveSearchProvider is built-in. For other providers,
+implement the SearchProvider Protocol — see _types.py for examples.
+"""
+
+from .brave import BraveSearchProvider
+
+__all__ = ["BraveSearchProvider"]
+```
+
+### 11.3 Update builtin/__init__.py
 
 ```python
 # src/rawagents/tools/builtin/__init__.py
@@ -2647,7 +2896,7 @@ __all__ = ["fs", "shell", "web"]
 2. **Integration tests** (real Brave API, real URL fetch, Cloudflare retry, cache persistence)
 3. **Content processor tests** (mock processor, pipeline verification)
 4. **Documentation** (docstrings, module docs, type hints)
-5. **Dependencies** (update pyproject.toml: httpx, markdownify as required; brave-search as optional)
+5. **Dependencies** (update pyproject.toml: httpx, markdownify as required; h2 as optional for HTTP/2)
 
 ---
 
@@ -2719,6 +2968,52 @@ if "text/markdown" in content_type and format == "markdown":
 
 ---
 
+## 14. Developer FAQ & Design Decisions
+
+This section addresses questions raised during the dev team review (v2.2 review cycle). Each answer captures the rationale so future contributors don't revisit settled decisions.
+
+### Q1: Are `httpx` and `markdownify` optional or required dependencies?
+
+**Answer: Required.** Both `httpx` and `markdownify` are listed under `[project.dependencies]` (not `[project.optional-dependencies]`). Every web tool function depends on them — `httpx` for all HTTP communication and `markdownify` for HTML→Markdown conversion. There is no fallback path if they are absent, so they must install with `pip install rawagents`.
+
+The *only* optional dependency is `h2>=4.0.0` (the `web-http2` extra), which enables HTTP/2 support for users who need it. See Appendix A for the full dependency table.
+
+### Q2: Should we auto-detect other search providers, or is Brave-only sufficient for v1?
+
+**Answer: Brave-only is sufficient for v1.** The `SearchProvider` Protocol exists precisely so that users *can* plug in alternatives (Tavily, Exa, SearXNG, etc.), but v1 ships with only `BraveSearchProvider` built in. Reasons:
+
+1. **Scope control** — shipping one well-tested provider is better than shipping several partially tested ones.
+2. **Brave is the reference provider** used by both Claude Code and OpenCode, so it is the most battle-tested option.
+3. **The Protocol makes adding providers trivial** — implementers write ~20 lines of code (see Section 8.1 and Appendix B).
+
+If demand arises, additional built-in providers can be added in v2 without breaking changes.
+
+### Q3: The `brave-search` SDK is listed in optional dependencies — is it actually used?
+
+**Answer: No — it has been removed.** The `BraveSearchProvider` implementation uses `httpx` directly to call the Brave REST API (`https://api.search.brave.com/res/v1/web/search`). It never imports or uses the `brave-search` Python SDK. The SDK was incorrectly listed in earlier drafts and has been removed as of v2.2. See the updated Appendix A.
+
+### Q4: What is the lifecycle and scope of the URL cache? Per-request? Per-session?
+
+**Answer: Module-level singleton, per-process.** The `AsyncTTLCache` instance is a module-level singleton created lazily on first use (see Section 8.6). This means:
+
+- It persists for the lifetime of the Python process (like `ProcessManager` in the shell tools module).
+- All calls to `web_fetch` within the same process share the same cache.
+- Entries expire after 15 minutes (configurable via `WebContext.cache_ttl`).
+- Setting `cache_ttl=0` in `WebContext` disables caching entirely (useful for tests).
+
+The cache is **not** shared across processes. If a user runs multiple agent instances in separate processes, each gets its own cache. This is the simplest correct behavior for v1.
+
+### Q5: How are oversized responses handled — buffered or streamed?
+
+**Answer: Streamed with early rejection.** As specified in Section 5.2, `web_fetch` uses httpx streaming (`async with client.stream(...)`) to avoid buffering oversized responses into memory. The flow is:
+
+1. **Content-Length check** — if the server sends a `Content-Length` header exceeding 5 MB, the request is rejected *immediately* without reading the body.
+2. **Streaming check** — if no `Content-Length` header is present (e.g., chunked transfer), the response is read in chunks, tracking total bytes. If the 5 MB threshold is crossed mid-stream, reading aborts and returns an error.
+
+This two-tier approach prevents OOM on very large responses while remaining compatible with servers that don't send `Content-Length`.
+
+---
+
 ## Appendix A: Dependencies
 
 ### Required Dependencies
@@ -2727,7 +3022,7 @@ if "text/markdown" in content_type and format == "markdown":
 [project]
 dependencies = [
     # ... existing dependencies ...
-    "httpx>=0.27.0,<1.0.0",       # Async HTTP client
+    "httpx>=0.27.0,<1.0.0",       # Async HTTP client (latest stable: 0.28.1)
     "markdownify>=0.14.0,<1.0.0",  # HTML→Markdown conversion
 ]
 ```
@@ -2736,18 +3031,26 @@ dependencies = [
 
 ```toml
 [project.optional-dependencies]
-web-brave = ["brave-search>=0.3.0"]  # Optional: uses REST API directly if not installed
+web-http2 = ["h2>=4.0.0"]  # Optional: enables HTTP/2 support in httpx
 ```
+
+**Note:** The `brave-search` SDK is **not needed**. `BraveSearchProvider` uses httpx directly to call the Brave REST API. No SDK dependency required.
+
+**Note on HTTP/2:** httpx supports HTTP/2 but requires the separate `h2` package. HTTP/2 is NOT enabled by default in our implementation (HTTP/1.1 is sufficient). If users want HTTP/2, they install `rawagents[web-http2]` and pass `http2=True` when creating httpx clients.
 
 ### Installation
 
 ```bash
-# Basic (uses httpx directly to call Brave API — no SDK needed)
+# Standard (all web tools work out of the box)
 pip install rawagents
 
-# With Brave SDK (optional, for advanced Brave features)
-pip install rawagents[web-brave]
+# With HTTP/2 support (optional)
+pip install rawagents[web-http2]
 ```
+
+### Alternative HTML Conversion Library (Future Consideration)
+
+For v1, we use `markdownify` — it's lightweight, well-maintained, and sufficient. For v2, consider [`html-to-markdown`](https://pypi.org/project/html-to-markdown/) — a Rust-backed library that is 10-80x faster (150-280 MB/s throughput) with CommonMark compliance. This could be beneficial for high-throughput agent workloads that process many web pages. The API is similar enough that swapping would require minimal code changes.
 
 ---
 

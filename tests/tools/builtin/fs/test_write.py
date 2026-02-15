@@ -6,7 +6,12 @@ from pathlib import Path
 
 import pytest
 
-from rawagents.tools.builtin.fs import write, read, SecurityContext, set_security_context, WorkspaceSecurityError
+from rawagents.tools.builtin.fs import (
+    SecurityContext,
+    read,
+    set_security_context,
+    write,
+)
 
 
 class TestWrite:
@@ -85,6 +90,28 @@ class TestWrite:
 
         assert "successfully" in result.lower()
         assert unicode_file.read_text(encoding="utf-8") == content
+
+    @pytest.mark.asyncio
+    async def test_write_rejects_stale_file(
+        self, temp_workspace: Path, secure_context: SecurityContext
+    ) -> None:
+        """Write should reject if file was modified externally since read."""
+        import time
+
+        existing_file = temp_workspace / "stale_write.txt"
+        existing_file.write_text("original")
+
+        # Read first
+        await read(file_path=str(existing_file))
+
+        # External modification
+        time.sleep(0.05)
+        existing_file.write_text("externally modified")
+
+        # Try to overwrite — should fail
+        result = await write(file_path=str(existing_file), content="agent content")
+        assert "Error" in result
+        assert "modified externally" in result
 
     @pytest.mark.asyncio
     async def test_rejects_oversized_content(

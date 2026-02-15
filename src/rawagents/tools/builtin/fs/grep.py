@@ -17,7 +17,7 @@ import os
 import re
 import subprocess
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 from rawagents.tools import tool
 from rawagents.tools.builtin.fs._security import (
@@ -57,11 +57,11 @@ def _is_ripgrep_available() -> bool:
 async def grep(
     pattern: Annotated[str, "The regex pattern to search for in file contents"],
     path: Annotated[
-        Optional[str],
+        str | None,
         "Directory to search in. Defaults to current working directory.",
     ] = None,
     include: Annotated[
-        Optional[str],
+        str | None,
         'File pattern to include (e.g., "*.py", "*.{ts,tsx}")',
     ] = None,
     structured: Annotated[
@@ -143,10 +143,10 @@ async def grep(
 async def _grep_with_ripgrep(
     search_dir: Path,
     pattern: str,
-    include: Optional[str],
+    include: str | None,
     ctx: SecurityContext,
     structured: bool = False,
-) -> Optional[str]:
+) -> str | None:
     """Try to use ripgrep for searching.
 
     Args:
@@ -188,7 +188,7 @@ async def _grep_with_ripgrep(
             stdout_bytes, stderr_bytes = await asyncio.wait_for(
                 proc.communicate(), timeout=30
             )
-        except asyncio.TimeoutError:
+        except TimeoutError:
             proc.kill()
             return "Error: Search timed out"
 
@@ -249,7 +249,7 @@ async def _grep_with_ripgrep(
 async def _grep_with_python(
     search_dir: Path,
     regex: re.Pattern,
-    include: Optional[str],
+    include: str | None,
     ctx: SecurityContext,
     structured: bool = False,
 ) -> str:
@@ -297,7 +297,7 @@ async def _grep_with_python(
 
                 try:
                     content = filepath.read_text(encoding="utf-8", errors="ignore")
-                except (IOError, OSError, PermissionError):
+                except (OSError, PermissionError):
                     continue
 
                 mtime = get_file_mtime(filepath)

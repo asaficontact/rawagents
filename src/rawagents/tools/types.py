@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from rawagents.utils.types import ToolResult
 
+
 __all__ = [
     "Inject",
     "ToolResult",

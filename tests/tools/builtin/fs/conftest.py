@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import tempfile
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 import pytest
 
@@ -12,7 +12,7 @@ from rawagents.tools.builtin.fs._security import SecurityContext, set_security_c
 
 
 @pytest.fixture
-def temp_workspace() -> Generator[Path, None, None]:
+def temp_workspace() -> Generator[Path]:
     """Create a temporary workspace directory.
 
     Yields:
@@ -37,7 +37,7 @@ def temp_workspace() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def secure_context(temp_workspace: Path) -> Generator[SecurityContext, None, None]:
+def secure_context(temp_workspace: Path) -> Generator[SecurityContext]:
     """Create a workspace with security context configured.
 
     This fixture sets up security context that restricts operations
@@ -52,7 +52,7 @@ def secure_context(temp_workspace: Path) -> Generator[SecurityContext, None, Non
 
 
 @pytest.fixture
-def permissive_context() -> Generator[SecurityContext, None, None]:
+def permissive_context() -> Generator[SecurityContext]:
     """Create a permissive security context with no workspace restriction.
 
     Yields:

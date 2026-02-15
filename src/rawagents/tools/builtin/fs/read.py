@@ -16,6 +16,7 @@ from pathlib import Path
 from typing import Annotated
 
 from rawagents.tools import tool
+from rawagents.tools.builtin._truncation import truncate_output
 from rawagents.tools.builtin.fs._security import (
     WorkspaceSecurityError,
     get_security_context,
@@ -97,12 +98,11 @@ async def read(
     # Check file size to determine read strategy
     try:
         file_size = resolved_path.stat().st_size
-    except (OSError, IOError):
+    except OSError:
         file_size = 0
 
     # Apply offset and limit bounds
-    if offset < 0:
-        offset = 0
+    offset = max(offset, 0)
 
     # Use streaming reader for large files to avoid loading entire file into memory
     if file_size > STREAMING_THRESHOLD:
@@ -117,7 +117,7 @@ async def read(
                 )
             except (UnicodeDecodeError, UnicodeError):
                 return f"Error: Cannot decode file: {file_path}"
-        except (IOError, OSError, PermissionError) as e:
+        except (OSError, PermissionError) as e:
             return f"Error: Failed to read file: {e}"
 
         if offset >= total_lines:
@@ -140,17 +140,15 @@ async def read(
     # Format output with line numbers
     output = format_cat_n(selected_lines, start_line=offset + 1, max_line_length=MAX_LINE_LENGTH)
 
-    # Check output size and truncate if needed
-    if len(output.encode("utf-8")) > MAX_OUTPUT_BYTES:
-        # Find where to truncate
-        output_bytes = output.encode("utf-8")
-        truncated_bytes = output_bytes[:MAX_OUTPUT_BYTES]
-        # Find last complete line
-        last_newline = truncated_bytes.rfind(b"\n")
-        if last_newline > 0:
-            output = truncated_bytes[:last_newline + 1].decode("utf-8", errors="replace")
-
-        # Add truncation message
+    # Check output size and truncate if needed (byte limit only — line limiting
+    # is already handled by offset/limit params above)
+    trunc = truncate_output(
+        output,
+        max_lines=len(selected_lines) + 1,  # effectively no line limit
+        max_bytes=MAX_OUTPUT_BYTES,
+    )
+    if trunc.was_truncated:
+        output = trunc.content
         end_line = offset + output.count("\n")
         output += f"\n... (output truncated at 50KB, use offset={end_line} to continue)"
 
@@ -220,7 +218,7 @@ def _read_lines_streaming(
     selected_lines: list[str] = []
     line_count = 0
 
-    with open(path, "r", encoding=encoding, errors="replace") as f:
+    with open(path, encoding=encoding, errors="replace") as f:
         # Skip offset lines
         for _ in range(offset):
             try:

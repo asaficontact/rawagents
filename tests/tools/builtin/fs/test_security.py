@@ -340,6 +340,67 @@ class TestReadBeforeEdit:
         ctx.clear_read_tracking()
         assert ctx.check_read_before_edit(existing_file) is False
 
+    def test_mtime_detects_external_modification(self, temp_workspace: Path) -> None:
+        """Agent's edit should be rejected if file was modified externally."""
+        import time
+
+        ctx = SecurityContext(workspace=str(temp_workspace))
+        f = temp_workspace / "mtime_test.txt"
+        f.write_text("original")
+
+        ctx.mark_file_read(f)
+
+        # External modification (simulating user edit)
+        time.sleep(0.05)
+        f.write_text("user changed this")
+
+        check = ctx.check_read_before_edit(f)
+        assert isinstance(check, str)
+        assert "modified externally" in check
+
+    def test_mtime_passes_when_unchanged(self, temp_workspace: Path) -> None:
+        """Mtime check should pass when file is unchanged since read."""
+        ctx = SecurityContext(workspace=str(temp_workspace))
+        f = temp_workspace / "test.py"
+
+        ctx.mark_file_read(f)
+        assert ctx.check_read_before_edit(f) is True
+
+    def test_mtime_tracking_disabled(self, temp_workspace: Path) -> None:
+        """With tracking disabled, mtime changes should be ignored."""
+        import time
+
+        ctx = SecurityContext(
+            workspace=str(temp_workspace),
+            track_file_modifications=False,
+        )
+        f = temp_workspace / "no_track.txt"
+        f.write_text("original")
+
+        ctx.mark_file_read(f)
+
+        time.sleep(0.05)
+        f.write_text("changed content")
+
+        # Should still pass — tracking is disabled
+        assert ctx.check_read_before_edit(f) is True
+
+    def test_new_file_bypasses_mtime(self, temp_workspace: Path) -> None:
+        """Non-existent file should pass check regardless of tracking."""
+        ctx = SecurityContext(workspace=str(temp_workspace))
+        new_file = temp_workspace / "does_not_exist.py"
+        assert ctx.check_read_before_edit(new_file) is True
+
+    def test_clear_tracking_resets_dict(self, temp_workspace: Path) -> None:
+        """Clearing tracking should reset the mtime dict to empty."""
+        ctx = SecurityContext(workspace=str(temp_workspace))
+        f = temp_workspace / "test.py"
+        ctx.mark_file_read(f)
+        assert len(ctx._read_files) > 0
+
+        ctx.clear_read_tracking()
+        assert len(ctx._read_files) == 0
+
 
 class TestMediaDetection:
     """Test media file detection."""

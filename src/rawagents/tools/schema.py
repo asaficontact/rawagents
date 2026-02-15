@@ -5,10 +5,10 @@ from __future__ import annotations
 import inspect
 import re
 import types
+from collections.abc import Callable
 from typing import (
     Annotated,
     Any,
-    Callable,
     Literal,
     Union,
     get_args,
@@ -226,7 +226,7 @@ def generate_tool_schema(
     """
     # Parse docstring for parameter descriptions
     doc_description, param_docs = _parse_docstring(func.__doc__ or "")
-    
+
     # Use provided description if available, otherwise parsed one
     final_description = description or doc_description
 

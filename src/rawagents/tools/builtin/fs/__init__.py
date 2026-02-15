@@ -30,6 +30,11 @@ Example:
     >>> content = await read(file_path="/home/user/project/main.py")
 """
 
+from rawagents.tools.builtin.fs._diagnostics import (
+    Diagnostic,
+    DiagnosticSeverity,
+    DiagnosticsProvider,
+)
 from rawagents.tools.builtin.fs._security import (
     SecurityContext,
     SecurityContextNotSetError,
@@ -51,6 +56,10 @@ from rawagents.tools.builtin.fs.write import write
 
 
 __all__ = [
+    # Diagnostics
+    "Diagnostic",
+    "DiagnosticSeverity",
+    "DiagnosticsProvider",
     # Security
     "SecurityContext",
     "SecurityContextNotSetError",

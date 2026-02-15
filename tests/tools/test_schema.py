@@ -2,8 +2,7 @@
 
 from typing import Annotated, Literal
 
-import pytest
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 
 from rawagents.tools import Inject, tool
 from rawagents.tools.schema import generate_tool_schema, type_to_json_schema

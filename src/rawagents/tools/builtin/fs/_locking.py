@@ -19,11 +19,11 @@ from __future__ import annotations
 import asyncio
 import contextlib
 import sys
+from collections.abc import AsyncIterator
 from pathlib import Path
-from typing import AsyncIterator, Optional
 
 
-__all__ = ["file_lock", "FileLockError"]
+__all__ = ["FileLockError", "file_lock"]
 
 
 class FileLockError(OSError):
@@ -49,7 +49,7 @@ class _FileLock:
     def __init__(self, path: Path, exclusive: bool = True):
         self.path = path
         self.exclusive = exclusive
-        self._fd: Optional[int] = None
+        self._fd: int | None = None
 
     def acquire(self) -> None:
         """Acquire the file lock (blocking)."""
@@ -174,8 +174,8 @@ async def file_lock(
             loop.run_in_executor(None, lock.acquire),
             timeout=timeout,
         )
-    except asyncio.TimeoutError:
-        raise asyncio.TimeoutError(f"Timeout waiting for lock on {path}")
+    except TimeoutError:
+        raise TimeoutError(f"Timeout waiting for lock on {path}")
 
     try:
         yield

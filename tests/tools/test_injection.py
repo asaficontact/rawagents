@@ -4,8 +4,8 @@ from typing import Annotated
 
 import pytest
 
-from rawagents.utils.types import ToolCall
 from rawagents.tools import Inject, ToolExecutor, tool
+from rawagents.utils.types import ToolCall
 
 
 class TestInjectionBasic:

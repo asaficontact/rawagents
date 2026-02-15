@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from rawagents.tools.builtin.fs import grep, SecurityContext, set_security_context
+from rawagents.tools.builtin.fs import SecurityContext, grep
 
 
 class TestGrep:

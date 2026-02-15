@@ -58,11 +58,19 @@ async def main() -> None:
 ## Component Guides
 
 - [LLM](components/llm.md)
-- [Conversation](components/conversation.md)
-- [Tools](components/tool_executor.md)
-- [Loops](components/loops.md)
+- [State (Conversation)](components/state.md)
+- [Tools](components/tools.md)
 - [Prompts](components/prompts.md)
 - [RAG](components/rag.md)
+
+## Built-in Tools
+
+RawAgents ships with ready-to-use tools for common agent tasks:
+
+- [Overview](tools/index.md)
+- [File System](tools/fs.md) -- read, write, edit, glob, grep, and more
+- [Shell](tools/shell.md) -- run commands with session management
+- [Web](tools/web.md) -- fetch pages and search the web
 
 ## Recipes
 

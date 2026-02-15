@@ -1,10 +1,19 @@
 # Product Requirements Document (PRD)
 # RawAgents Built-in Tool Enhancements
 
-**Version:** 1.0
+**Version:** 1.1
 **Date:** February 2026
-**Status:** Draft
+**Status:** In Progress
 **Author:** Tawab Safi
+
+> **v1.1 Changes (Implementation Decisions):**
+> - **E7 (Tree-Sitter)**: Deferred — optional dependency adds complexity; current regex is effective
+> - **E8 (Code Search)**: Deferred — protocol-only, low priority
+> - **E5 (Truncation)**: Simplified — drop context-aware hints system (agent-loop concern), keep only shared `truncate_output()` function
+> - **E2 (Batch)**: Reduced scope — drop `batch` tool wrapper, keep only `execute_batch()` method on `ToolExecutor`
+> - **E1 (Diagnostics)**: Protocol + field only — do NOT auto-append diagnostics in edit/write
+> - **E4 (mtime)**: Added `track_file_modifications` flag so sandboxes can opt out
+> - **Implementation order**: E4 → E3 → E5 → E2 → E1 → E6
 
 ---
 
@@ -59,8 +68,8 @@ Following RawAgents' **"Primitives over Frameworks"** philosophy, each enhanceme
 | E4 | File Modification Timestamp Safety | `fs` | P1 - High | Low |
 | E5 | Smart Output Truncation | `fs`, `shell` | P1 - High | Medium |
 | E6 | Named Shell Sessions | `shell` | P2 - Medium | Medium |
-| E7 | Tree-Sitter Shell Security | `shell` | P2 - Medium | High |
-| E8 | Code Search Provider | `web` | P3 - Low | Low |
+| E7 | ~~Tree-Sitter Shell Security~~ | `shell` | **Deferred** | High |
+| E8 | ~~Code Search Provider~~ | `web` | **Deferred** | Low |
 
 ---
 

@@ -5,8 +5,8 @@ from unittest.mock import MagicMock
 
 import pytest
 
-from rawagents.utils.types import ToolCall
 from rawagents.tools import ToolExecutor, ToolResult, tool
+from rawagents.utils.types import ToolCall
 
 
 class TestToolExecutorRegistration:
@@ -224,6 +224,97 @@ class TestToolExecutorCallbacks:
         # Execution still succeeds despite callback failure
         assert result.is_error is False
         assert result.content == "3"
+
+
+class TestToolExecutorBatch:
+    """Tests for batch/parallel execution."""
+
+    @pytest.mark.asyncio
+    async def test_batch_multiple_tools(self, executor) -> None:
+        """Batch should return results for all calls."""
+        calls = [
+            ToolCall(id="1", name="add", arguments={"a": 1, "b": 2}),
+            ToolCall(id="2", name="add", arguments={"a": 3, "b": 4}),
+            ToolCall(id="3", name="greet", arguments={"name": "Alice"}),
+        ]
+        results = await executor.execute_batch(calls)
+
+        assert len(results) == 3
+        assert results[0].content == "3"
+        assert results[1].content == "7"
+        assert "Alice" in results[2].content
+
+    @pytest.mark.asyncio
+    async def test_batch_empty_list(self, executor) -> None:
+        """Empty batch should return empty list."""
+        results = await executor.execute_batch([])
+        assert results == []
+
+    @pytest.mark.asyncio
+    async def test_batch_preserves_order(self, executor) -> None:
+        """Results should be in the same order as input calls."""
+        calls = [
+            ToolCall(id="a", name="add", arguments={"a": 10, "b": 20}),
+            ToolCall(id="b", name="add", arguments={"a": 30, "b": 40}),
+        ]
+        results = await executor.execute_batch(calls)
+
+        assert results[0].tool_call_id == "a"
+        assert results[0].content == "30"
+        assert results[1].tool_call_id == "b"
+        assert results[1].content == "70"
+
+    @pytest.mark.asyncio
+    async def test_batch_error_isolation(self, executor) -> None:
+        """One failure should not affect other calls."""
+        calls = [
+            ToolCall(id="ok", name="add", arguments={"a": 1, "b": 2}),
+            ToolCall(id="err", name="divide", arguments={"a": 1, "b": 0}),
+            ToolCall(id="ok2", name="add", arguments={"a": 5, "b": 5}),
+        ]
+        results = await executor.execute_batch(calls)
+
+        assert len(results) == 3
+        assert results[0].is_error is False
+        assert results[0].content == "3"
+        assert results[1].is_error is True
+        assert "ZeroDivisionError" in results[1].content
+        assert results[2].is_error is False
+        assert results[2].content == "10"
+
+    @pytest.mark.asyncio
+    async def test_batch_with_context(self, executor, mock_db) -> None:
+        """Injection context should be shared across all calls."""
+        calls = [
+            ToolCall(id="1", name="query", arguments={"sql": "SELECT * FROM users"}),
+            ToolCall(id="2", name="query", arguments={"sql": "SELECT 1"}),
+        ]
+        results = await executor.execute_batch(calls, context={"db": mock_db})
+
+        assert len(results) == 2
+        assert results[0].is_error is False
+        assert results[1].is_error is False
+
+    @pytest.mark.asyncio
+    async def test_batch_callbacks_invoked(self, simple_tool) -> None:
+        """Before/after callbacks should be invoked for each call."""
+        before_calls: list[ToolCall] = []
+        after_calls: list[tuple[ToolCall, Any]] = []
+
+        executor = ToolExecutor(
+            [simple_tool],
+            on_before=lambda tc: before_calls.append(tc),
+            on_after=lambda tc, tr: after_calls.append((tc, tr)),
+        )
+
+        calls = [
+            ToolCall(id="1", name="add", arguments={"a": 1, "b": 2}),
+            ToolCall(id="2", name="add", arguments={"a": 3, "b": 4}),
+        ]
+        await executor.execute_batch(calls)
+
+        assert len(before_calls) == 2
+        assert len(after_calls) == 2
 
 
 class TestToolExecutorSyncExecution:

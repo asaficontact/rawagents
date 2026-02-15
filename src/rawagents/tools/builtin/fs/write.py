@@ -76,11 +76,15 @@ async def write(
 
     # Check if file exists (determines locking and read-before-edit)
     if await aexists(resolved_path):
-        if not ctx.check_read_before_edit(resolved_path):
-            return (
-                f"Error: File '{file_path}' exists but was not read in this session. "
-                f"Please read the file first before overwriting it."
-            )
+        check = ctx.check_read_before_edit(resolved_path)
+        if check is not True:
+            if check is False:
+                return (
+                    f"Error: File '{file_path}' exists but was not read in this session. "
+                    f"Please read the file first before overwriting it."
+                )
+            # check is a str — mtime mismatch
+            return f"Error: {check}"
 
         # Lock existing file for TOCTOU protection
         async with file_lock(resolved_path, exclusive=True):

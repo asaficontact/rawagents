@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from rawagents.tools.builtin.fs import list_dir, SecurityContext, set_security_context
+from rawagents.tools.builtin.fs import SecurityContext, list_dir
 
 
 class TestListDir:

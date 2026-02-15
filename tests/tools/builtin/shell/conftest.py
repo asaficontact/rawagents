@@ -3,8 +3,8 @@
 from __future__ import annotations
 
 import tempfile
+from collections.abc import Generator
 from pathlib import Path
-from typing import Generator
 
 import pytest
 
@@ -16,7 +16,7 @@ from rawagents.tools.builtin.shell._security import (
 
 
 @pytest.fixture
-def temp_workspace() -> Generator[Path, None, None]:
+def temp_workspace() -> Generator[Path]:
     """Create a temporary workspace directory.
 
     Yields:
@@ -35,7 +35,7 @@ def temp_workspace() -> Generator[Path, None, None]:
 
 
 @pytest.fixture
-def shell_context(temp_workspace: Path) -> Generator[ShellSecurityContext, None, None]:
+def shell_context(temp_workspace: Path) -> Generator[ShellSecurityContext]:
     """Create a shell security context.
 
     Yields:
@@ -49,7 +49,7 @@ def shell_context(temp_workspace: Path) -> Generator[ShellSecurityContext, None,
 @pytest.fixture
 def sandboxed_context(
     temp_workspace: Path,
-) -> Generator[ShellSecurityContext, None, None]:
+) -> Generator[ShellSecurityContext]:
     """Create a sandboxed shell context.
 
     Note: Tests using this fixture may skip on systems without

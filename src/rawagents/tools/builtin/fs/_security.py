@@ -43,7 +43,11 @@ import contextvars
 import fnmatch
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Optional
+from typing import TYPE_CHECKING
+
+
+if TYPE_CHECKING:
+    from rawagents.tools.builtin.fs._diagnostics import DiagnosticsProvider
 
 from rawagents.tools.builtin.fs._utils import (
     detect_binary as _utils_detect_binary,
@@ -54,11 +58,11 @@ from rawagents.tools.builtin.fs._utils import (
 
 
 __all__ = [
-    "WorkspaceSecurityError",
-    "SecurityContextNotSetError",
     "SecurityContext",
-    "set_security_context",
+    "SecurityContextNotSetError",
+    "WorkspaceSecurityError",
     "get_security_context",
+    "set_security_context",
     "validate_path",
 ]
 
@@ -76,8 +80,8 @@ class WorkspaceSecurityError(PermissionError):
         self,
         message: str,
         path: str,
-        resolved_path: Optional[str] = None,
-        pattern: Optional[str] = None,
+        resolved_path: str | None = None,
+        pattern: str | None = None,
     ):
         super().__init__(message)
         self.path = path
@@ -226,7 +230,7 @@ class SecurityContext:
         WorkspaceSecurityError: Access denied: /etc/passwd is outside workspace
     """
 
-    workspace: Optional[str] = None
+    workspace: str | None = None
     """Root directory for allowed file operations. If None, no restriction."""
 
     denied_patterns: list[str] = field(default_factory=lambda: list(_DEFAULT_DENIED_PATTERNS))
@@ -246,9 +250,18 @@ class SecurityContext:
     )
     """Extensions to treat as binary files."""
 
+    track_file_modifications: bool = True
+    """Track file modification times to detect external changes between read and edit.
+    Set to False in sandbox environments where mtime tracking is unreliable."""
+
+    diagnostics_provider: DiagnosticsProvider | None = None
+    """Optional diagnostics provider for post-edit feedback.
+    Agent loops can query this after edits to get syntax/type errors."""
+
     # Internal state
-    _resolved_workspace: Optional[Path] = field(default=None, init=False, repr=False)
-    _read_files: set[str] = field(default_factory=set, init=False, repr=False)
+    _resolved_workspace: Path | None = field(default=None, init=False, repr=False)
+    _read_files: dict[str, float] = field(default_factory=dict, init=False, repr=False)
+    """Maps resolved path -> st_mtime at time of read."""
 
     def __post_init__(self) -> None:
         """Resolve workspace path on initialization."""
@@ -281,7 +294,7 @@ class SecurityContext:
         # Step 0: Block null bytes (can bypass C-level path operations)
         if "\x00" in path:
             raise WorkspaceSecurityError(
-                f"Path contains null byte: {repr(path)}",
+                f"Path contains null byte: {path!r}",
                 path=path,
             )
 
@@ -292,7 +305,7 @@ class SecurityContext:
         try:
             # Always resolve non-strictly first to check boundary
             resolved = Path(path).resolve(strict=False)
-        except RuntimeError as e:
+        except RuntimeError:
             # Circular symlink or too many levels
             raise WorkspaceSecurityError(
                 f"Unable to resolve path (possible circular symlink): {path}",
@@ -432,24 +445,63 @@ class SecurityContext:
         """Mark a file as having been read in this session.
 
         This is used for read-before-edit tracking to prevent blind overwrites.
+        When track_file_modifications is enabled, also stores the file's mtime
+        so that external modifications can be detected before edits.
 
         Args:
             path: The resolved path that was read.
         """
-        self._read_files.add(str(Path(path).resolve()))
+        resolved = str(Path(path).resolve())
+        if self.track_file_modifications:
+            try:
+                mtime = Path(path).resolve().stat().st_mtime
+            except OSError:
+                mtime = 0.0
+        else:
+            mtime = 0.0
+        self._read_files[resolved] = mtime
 
-    def check_read_before_edit(self, path: str | Path) -> bool:
+    def check_read_before_edit(self, path: str | Path) -> bool | str:
         """Check if a file was read before attempting to edit.
+
+        Also verifies the file hasn't been modified externally since the last
+        read (when track_file_modifications is enabled).
 
         Args:
             path: The resolved path to check.
 
         Returns:
-            True if the file was read in this session OR doesn't exist yet.
+            True: File was read and is unchanged (safe to edit), or is a new file.
+            False: File was never read in this session.
+            str: File was read but modified externally since (warning message).
         """
         resolved = str(Path(path).resolve())
-        # File was read, OR file doesn't exist (new file)
-        return resolved in self._read_files or not Path(path).exists()
+        p = Path(path).resolve()
+
+        # New file — allow edit
+        if not p.exists():
+            return True
+
+        # Not read in this session
+        if resolved not in self._read_files:
+            return False
+
+        # Check if modified since read (only when tracking enabled)
+        if self.track_file_modifications:
+            stored_mtime = self._read_files[resolved]
+            if stored_mtime > 0:
+                try:
+                    current_mtime = p.stat().st_mtime
+                except OSError:
+                    return True  # Can't stat, allow edit
+
+                if current_mtime != stored_mtime:
+                    return (
+                        "File has been modified externally since last read. "
+                        "Read the file again to see current contents before editing."
+                    )
+
+        return True
 
     def clear_read_tracking(self) -> None:
         """Clear the read-tracking set (e.g., for a new session)."""
@@ -457,7 +509,7 @@ class SecurityContext:
 
 
 # Context variable for thread-safe global context
-_security_context_var: contextvars.ContextVar[Optional[SecurityContext]] = (
+_security_context_var: contextvars.ContextVar[SecurityContext | None] = (
     contextvars.ContextVar("security_context", default=None)
 )
 

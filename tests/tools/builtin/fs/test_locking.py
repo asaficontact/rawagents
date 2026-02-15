@@ -8,8 +8,8 @@ from pathlib import Path
 import pytest
 
 from rawagents.tools.builtin.fs._locking import (
-    file_lock,
     FileLockError,
+    file_lock,
 )
 
 

@@ -14,10 +14,7 @@ Covers:
 
 from __future__ import annotations
 
-import asyncio
 from pathlib import Path
-
-import pytest
 
 from rawagents.tools.builtin.shell._security import (
     ShellSecurityContext,
@@ -37,9 +34,7 @@ class TestBash:
         result = await bash("echo hello")
         assert result == "hello"
 
-    async def test_multiline_output(
-        self, shell_context: ShellSecurityContext
-    ) -> None:
+    async def test_multiline_output(self, shell_context: ShellSecurityContext) -> None:
         result = await bash("echo line1; echo line2; echo line3")
         assert "line1" in result
         assert "line2" in result
@@ -49,9 +44,7 @@ class TestBash:
         result = await bash("true")
         assert not result.startswith("Error:")
 
-    async def test_exit_code_nonzero(
-        self, shell_context: ShellSecurityContext
-    ) -> None:
+    async def test_exit_code_nonzero(self, shell_context: ShellSecurityContext) -> None:
         result = await bash("false")
         assert result.startswith("Error: Command failed with exit code")
 
@@ -63,9 +56,7 @@ class TestBash:
         result = await bash("echo error >&2 && false")
         assert "error" in result
 
-    async def test_command_not_found(
-        self, shell_context: ShellSecurityContext
-    ) -> None:
+    async def test_command_not_found(self, shell_context: ShellSecurityContext) -> None:
         result = await bash("nonexistent_command_xyz_12345")
         assert result.startswith("Error:")
 
@@ -80,9 +71,7 @@ class TestBash:
 class TestBashTimeout:
     """Test timeout handling."""
 
-    async def test_timeout_triggers(
-        self, shell_context: ShellSecurityContext
-    ) -> None:
+    async def test_timeout_triggers(self, shell_context: ShellSecurityContext) -> None:
         result = await bash("sleep 100", timeout=200)  # 200ms
         assert "timed out" in result.lower()
 
@@ -137,9 +126,7 @@ class TestBashBackground:
 class TestBashTruncation:
     """Test output truncation."""
 
-    async def test_line_truncation(
-        self, shell_context: ShellSecurityContext
-    ) -> None:
+    async def test_line_truncation(self, shell_context: ShellSecurityContext) -> None:
         """Output exceeding MAX_OUTPUT_LINES should be truncated."""
         # Generate 2500 lines
         result = await bash("seq 1 2500")
@@ -318,6 +305,51 @@ class TestExtractCdTarget:
 
     def test_cd_home_subdir(self) -> None:
         assert _extract_cd_target("cd ~/projects") == "~/projects"
+
+
+class TestBashSessions:
+    """Test named shell session support via bash tool."""
+
+    async def test_session_basic_execution(
+        self, shell_context: ShellSecurityContext
+    ) -> None:
+        """bash with session param should execute and return output."""
+        result = await bash("echo session_hello", session="test1")
+        assert "session_hello" in result
+        assert not result.startswith("Error:")
+
+    async def test_session_preserves_cd(
+        self, shell_context: ShellSecurityContext, temp_workspace: Path
+    ) -> None:
+        """cd in a session should persist for subsequent commands."""
+        subdir = temp_workspace / "sess_sub"
+        subdir.mkdir()
+
+        await bash(f"cd {subdir}", session="cd_test")
+        result = await bash("pwd", session="cd_test")
+        # macOS: /var -> /private/var, so compare resolved forms
+        assert Path(result.strip()).resolve() == subdir.resolve()
+
+    async def test_session_rejects_background(
+        self, shell_context: ShellSecurityContext
+    ) -> None:
+        """Background mode should be rejected with named sessions."""
+        result = await bash("echo hi", session="bg_test", run_in_background=True)
+        assert result.startswith("Error:")
+        assert "not supported" in result.lower()
+
+    async def test_different_sessions_isolated(
+        self, shell_context: ShellSecurityContext
+    ) -> None:
+        """Different sessions should not share state."""
+        await bash("export ISOLATED_VAR=alpha", session="iso_a")
+        await bash("export ISOLATED_VAR=beta", session="iso_b")
+
+        result_a = await bash("echo $ISOLATED_VAR", session="iso_a")
+        result_b = await bash("echo $ISOLATED_VAR", session="iso_b")
+
+        assert "alpha" in result_a
+        assert "beta" in result_b
 
 
 class TestUpdateWorkingDirectory:

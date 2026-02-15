@@ -11,7 +11,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 from rawagents.tools import tool
 from rawagents.tools.builtin.fs._locking import file_lock
@@ -56,8 +56,8 @@ class PatchHunk:
 
     type: HunkType
     file_path: str
-    move_path: Optional[str] = None
-    content: Optional[str] = None
+    move_path: str | None = None
+    content: str | None = None
     chunks: list[tuple[str, str]] = field(default_factory=list)  # (old_text, new_text)
 
 
@@ -112,7 +112,7 @@ def parse_patch(patch_text: str) -> ParsedPatch:
         result.errors.append("Patch must end with '*** End Patch'")
         return result
 
-    current_hunk: Optional[PatchHunk] = None
+    current_hunk: PatchHunk | None = None
     in_chunk = False
     chunk_old: list[str] = []
     chunk_new: list[str] = []

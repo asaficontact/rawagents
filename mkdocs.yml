@@ -26,8 +26,13 @@ nav:
       - LLM: components/llm.md
       - State: components/state.md
       - Tools: components/tools.md
-      - Loops: components/loops.md
       - Prompts: components/prompts.md
+      - RAG: components/rag.md
+  - Built-in Tools:
+      - Overview: tools/index.md
+      - File System: tools/fs.md
+      - Shell: tools/shell.md
+      - Web: tools/web.md
   - Recipes:
       - Basic chat bot: recipes/basic_chat_bot.md
       - Tool-using assistant: recipes/tool_using_assistant.md

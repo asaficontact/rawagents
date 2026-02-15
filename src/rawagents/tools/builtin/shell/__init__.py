@@ -25,6 +25,7 @@ Example:
     >>> result = await bash("git status")
 """
 
+from rawagents.tools.builtin.shell._process_manager import ShellSession
 from rawagents.tools.builtin.shell._security import (
     CommandSecurityError,
     SandboxNotAvailableError,
@@ -42,6 +43,7 @@ __all__ = [
     "CommandSecurityError",
     "SandboxNotAvailableError",
     "ShellSecurityContext",
+    "ShellSession",
     "bash",
     "bash_output",
     "get_shell_security_context",

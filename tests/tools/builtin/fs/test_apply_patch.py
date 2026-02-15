@@ -6,7 +6,10 @@ from pathlib import Path
 
 import pytest
 
-from rawagents.tools.builtin.fs import apply_patch, SecurityContext, set_security_context
+from rawagents.tools.builtin.fs import (
+    SecurityContext,
+    apply_patch,
+)
 
 
 class TestApplyPatch:
@@ -42,7 +45,7 @@ class TestApplyPatch:
         existing.write_text("def old():\n    pass\n")
         secure_context.mark_file_read(existing)
 
-        patch = f"""*** Begin Patch
+        patch = """*** Begin Patch
 *** Update File: existing.py
 @@ -1,2 +1,2 @@
 -def old():

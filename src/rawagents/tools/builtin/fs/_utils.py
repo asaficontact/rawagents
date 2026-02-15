@@ -12,29 +12,30 @@ from __future__ import annotations
 import asyncio
 import difflib
 import mimetypes
+from collections.abc import Iterable
 from pathlib import Path
-from typing import TYPE_CHECKING, Iterable
+from typing import TYPE_CHECKING
 
 
 if TYPE_CHECKING:
     from rawagents.tools.builtin.fs._security import SecurityContext
 
 __all__ = [
+    "aexists",
+    "amkdir",
+    "aread_text",
+    "async_safe_read_text",
+    "aunlink",
+    "awrite_text",
+    "detect_binary",
     "format_cat_n",
-    "truncate_line",
-    "suggest_similar_files",
     "get_file_mtime",
     "is_media_file",
-    "detect_binary",
-    "validate_path_or_error",
     "require_read_before_edit",
     "safe_read_text",
-    "aread_text",
-    "awrite_text",
-    "amkdir",
-    "aunlink",
-    "aexists",
-    "async_safe_read_text",
+    "suggest_similar_files",
+    "truncate_line",
+    "validate_path_or_error",
 ]
 
 
@@ -129,7 +130,7 @@ def detect_binary(path: Path, sample_size: int = 8192) -> bool:
             non_text = sum(1 for b in chunk if b not in text_chars)
             return non_text / len(chunk) > 0.30
 
-    except (IOError, OSError):
+    except OSError:
         return False
 
 
@@ -191,7 +192,7 @@ def get_file_mtime(path: Path) -> float:
     """
     try:
         return path.stat().st_mtime
-    except (OSError, IOError):
+    except OSError:
         return 0.0
 
 
@@ -256,7 +257,8 @@ def require_read_before_edit(
 ) -> str | None:
     """Check read-before-edit requirement.
 
-    Returns error string if file wasn't read, None if OK.
+    Returns error string if file wasn't read or was modified externally,
+    None if OK.
 
     Args:
         ctx: The security context.
@@ -266,12 +268,16 @@ def require_read_before_edit(
     Returns:
         Error string or None.
     """
-    if not ctx.check_read_before_edit(resolved_path):
+    check = ctx.check_read_before_edit(resolved_path)
+    if check is True:
+        return None
+    if check is False:
         return (
             f"Error: File '{display_path}' was not read in this session. "
             f"Please read the file first before editing it."
         )
-    return None
+    # check is a str — mtime mismatch warning
+    return f"Error: {check}"
 
 
 def safe_read_text(path: Path) -> tuple[str | None, str | None]:

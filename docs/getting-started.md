@@ -58,4 +58,33 @@ async def main() -> None:
 
 See the [Recipes](recipes/basic_chat_bot.md) section for more complete examples.
 
+## Built-in Tools
 
+RawAgents ships with built-in tools for file system operations, shell
+command execution, and web fetching. These tools follow the same `@tool`
+decorator pattern shown above and can be passed directly to a
+`ToolExecutor`.
+
+Each tool category uses a `SecurityContext` to restrict operations to a
+workspace directory:
+
+```python
+from rawagents.tools.builtin.fs import read, write, set_security_context, SecurityContext
+
+# Configure the security boundary (required before calling any fs tool)
+set_security_context(SecurityContext(workspace="/path/to/project"))
+
+# Pass built-in tools to your executor alongside your own
+tools = ToolExecutor([search_web, read, write])
+```
+
+Shell tools work the same way:
+
+```python
+from rawagents.tools.builtin.shell import bash, set_security_context, SecurityContext
+
+set_security_context(SecurityContext(workspace="/path/to/project"))
+```
+
+For the full list of available tools and detailed configuration options, see
+the [Built-in Tools documentation](tools/index.md).

@@ -149,7 +149,13 @@ async def edit(
         except Exception as e:
             return f"Error: Failed to write file: {e}"
 
+    # Refresh mtime so subsequent edits don't trigger stale-file detection
+    ctx.mark_file_read(resolved_path)
+
     # Format success message
+    msg = "Edit applied successfully."
     if result.match_count > 1:
-        return f"Edit applied successfully. ({result.match_count} replacements)"
-    return "Edit applied successfully."
+        msg = f"Edit applied successfully. ({result.match_count} replacements)"
+    if result.strategy == "fuzzy":
+        msg += " (applied via fuzzy matching — verify the result)"
+    return msg

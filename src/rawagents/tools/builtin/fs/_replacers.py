@@ -16,20 +16,21 @@ performing replacements.
 
 from __future__ import annotations
 
+import difflib
 import re
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Optional
 
 
 __all__ = [
+    "BlockAnchorReplacer",
+    "FuzzyReplacer",
+    "IndentationFlexibleReplacer",
+    "LineTrimmedReplacer",
     "ReplacementResult",
     "Replacer",
     "SimpleReplacer",
-    "LineTrimmedReplacer",
-    "BlockAnchorReplacer",
     "WhitespaceNormalizedReplacer",
-    "IndentationFlexibleReplacer",
     "find_and_replace",
 ]
 
@@ -47,10 +48,10 @@ class ReplacementResult:
     """
 
     success: bool
-    content: Optional[str] = None
+    content: str | None = None
     match_count: int = 0
-    strategy: Optional[str] = None
-    error: Optional[str] = None
+    strategy: str | None = None
+    error: str | None = None
 
 
 @dataclass
@@ -396,6 +397,85 @@ class IndentationFlexibleReplacer(Replacer):
         return matches
 
 
+class FuzzyReplacer(Replacer):
+    """Fuzzy matching using difflib.SequenceMatcher as a last resort.
+
+    Finds the most similar contiguous block in the file content and
+    matches it if similarity exceeds the threshold. This catches common
+    LLM transcription errors (wrong variable name, missing comma, etc.).
+
+    Safety guards:
+    - Skipped for large files (>5000 lines) with short patterns (<5 lines)
+      to avoid O(n*k) performance issues and false positives.
+    - Threshold of 0.7 is stricter than Aider's 0.6 to prevent false matches.
+    """
+
+    threshold: float = 0.7
+    short_pattern_threshold: float = 0.85
+    short_pattern_max_lines: int = 3
+    max_file_lines_for_short_pattern: int = 5000
+    min_pattern_lines: int = 5
+
+    @property
+    def name(self) -> str:
+        return "fuzzy"
+
+    def find_matches(self, content: str, old_string: str) -> list[Match]:
+        if not old_string or not content:
+            return []
+
+        old_lines = old_string.split("\n")
+        content_lines = content.split("\n")
+        window_size = len(old_lines)
+
+        if window_size == 0 or len(content_lines) == 0:
+            return []
+
+        # Safety: skip large files with short patterns to avoid false positives
+        if (
+            len(content_lines) > self.max_file_lines_for_short_pattern
+            and window_size < self.min_pattern_lines
+        ):
+            return []
+
+        best_ratio = 0.0
+        best_start_line = -1
+        best_window_size = window_size
+
+        # Allow window size variation of +/- 20%
+        min_window = max(1, int(window_size * 0.8))
+        max_window = min(len(content_lines), int(window_size * 1.2))
+
+        for ws in range(min_window, max_window + 1):
+            for i in range(len(content_lines) - ws + 1):
+                candidate_text = "\n".join(content_lines[i : i + ws])
+                ratio = difflib.SequenceMatcher(
+                    None, old_string, candidate_text
+                ).ratio()
+                if ratio > best_ratio:
+                    best_ratio = ratio
+                    best_start_line = i
+                    best_window_size = ws
+
+        # Use higher threshold for short patterns to prevent false positives
+        effective_threshold = (
+            self.short_pattern_threshold
+            if window_size < self.short_pattern_max_lines
+            else self.threshold
+        )
+
+        if best_ratio >= effective_threshold and best_start_line >= 0:
+            # Calculate character positions
+            start = sum(len(content_lines[j]) + 1 for j in range(best_start_line))
+            matched_text = "\n".join(
+                content_lines[best_start_line : best_start_line + best_window_size]
+            )
+            end = start + len(matched_text)
+            return [Match(start=start, end=end, matched_text=matched_text)]
+
+        return []
+
+
 # Default strategy order
 _STRATEGIES: list[Replacer] = [
     SimpleReplacer(),
@@ -403,6 +483,7 @@ _STRATEGIES: list[Replacer] = [
     BlockAnchorReplacer(),
     WhitespaceNormalizedReplacer(),
     IndentationFlexibleReplacer(),
+    FuzzyReplacer(),
 ]
 
 
@@ -453,7 +534,7 @@ def find_and_replace(
             strategy="create",
         )
 
-    last_error: Optional[str] = None
+    last_error: str | None = None
     total_matches = 0
 
     for strategy in _STRATEGIES:

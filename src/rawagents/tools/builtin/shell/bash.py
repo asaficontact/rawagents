@@ -18,6 +18,7 @@ import time
 from typing import TYPE_CHECKING, Annotated
 
 from rawagents.tools import tool
+from rawagents.tools.builtin._truncation import truncate_output
 from rawagents.tools.builtin.shell._errors import get_audit_logger
 from rawagents.tools.builtin.shell._process_manager import get_process_manager
 from rawagents.tools.builtin.shell._security import (
@@ -137,6 +138,10 @@ async def bash(  # noqa: PLR0912, PLR0915
     dangerously_disable_sandbox: Annotated[
         bool, "Override sandbox mode (use with extreme caution)"
     ] = False,
+    session: Annotated[
+        str | None,
+        "Named shell session for persistent state (cd, env vars, venv)"
+    ] = None,
 ) -> str:
     """Execute a shell command.
 
@@ -185,6 +190,35 @@ async def bash(  # noqa: PLR0912, PLR0915
     # Validate and normalize timeout
     timeout_ms = ctx.validate_timeout(timeout)
     timeout_sec = timeout_ms / 1000
+
+    # Named session execution path
+    if session is not None:
+        if run_in_background:
+            return "Error: Background execution is not supported with named sessions."
+
+        manager = get_process_manager()
+        cwd = str(ctx.get_working_directory())
+        sess = await manager.get_or_create_session(session, cwd)
+        output, exit_code = await manager.execute_in_session(
+            sess, command, timeout_sec=timeout_sec
+        )
+
+        # Apply truncation
+        trunc = truncate_output(
+            output, max_lines=MAX_OUTPUT_LINES, max_bytes=MAX_OUTPUT_BYTES
+        )
+        output = trunc.content
+
+        if trunc.was_truncated:
+            output += (
+                f"\n\n... (output truncated at {MAX_OUTPUT_LINES} lines / "
+                f"{MAX_OUTPUT_BYTES // 1024}KB)"
+            )
+
+        if exit_code == 0:
+            return output.strip() if output.strip() else "(no output)"
+        else:
+            return f"Error: Command failed with exit code {exit_code}\n{output.strip()}"
 
     # Get execution environment
     cwd = ctx.get_working_directory()
@@ -263,14 +297,11 @@ async def bash(  # noqa: PLR0912, PLR0915
         output = stdout.decode("utf-8", errors="replace")
 
         # Truncate if too large (dual truncation: lines AND bytes)
-        truncated = False
-        lines = output.split("\n")
-        if len(lines) > MAX_OUTPUT_LINES:
-            output = "\n".join(lines[:MAX_OUTPUT_LINES])
-            truncated = True
-        if len(output.encode("utf-8")) > MAX_OUTPUT_BYTES:
-            output = output[:MAX_OUTPUT_BYTES].rsplit("\n", 1)[0]
-            truncated = True
+        trunc = truncate_output(
+            output, max_lines=MAX_OUTPUT_LINES, max_bytes=MAX_OUTPUT_BYTES
+        )
+        truncated = trunc.was_truncated
+        output = trunc.content
 
         if truncated:
             # Persist full output to temp file for retrieval

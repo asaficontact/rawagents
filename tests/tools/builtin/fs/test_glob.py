@@ -6,7 +6,7 @@ from pathlib import Path
 
 import pytest
 
-from rawagents.tools.builtin.fs import glob, SecurityContext, set_security_context
+from rawagents.tools.builtin.fs import SecurityContext, glob
 
 
 class TestGlob:

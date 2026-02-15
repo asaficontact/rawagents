@@ -13,7 +13,7 @@ import asyncio
 import fnmatch
 import os
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 from rawagents.tools import tool
 from rawagents.tools.builtin.fs._security import (
@@ -64,7 +64,7 @@ MAX_FILES = 100
 async def list_dir(
     path: Annotated[str, "Directory to list. Absolute path recommended."] = ".",
     ignore: Annotated[
-        Optional[list[str]],
+        list[str] | None,
         "Glob patterns to ignore (added to defaults)",
     ] = None,
 ) -> str:

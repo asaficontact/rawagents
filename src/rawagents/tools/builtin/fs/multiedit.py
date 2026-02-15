@@ -28,7 +28,7 @@ from rawagents.tools.builtin.fs._utils import (
 )
 
 
-__all__ = ["multiedit", "EditOp"]
+__all__ = ["EditOp", "multiedit"]
 
 
 class EditOp(BaseModel):

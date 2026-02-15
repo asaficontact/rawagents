@@ -11,8 +11,6 @@ from __future__ import annotations
 
 import asyncio
 
-import pytest
-
 from rawagents.tools.builtin.shell._security import ShellSecurityContext
 from rawagents.tools.builtin.shell.bash import bash
 from rawagents.tools.builtin.shell.kill_shell import kill_shell

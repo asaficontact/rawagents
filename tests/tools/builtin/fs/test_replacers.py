@@ -2,10 +2,9 @@
 
 from __future__ import annotations
 
-import pytest
-
 from rawagents.tools.builtin.fs._replacers import (
     BlockAnchorReplacer,
+    FuzzyReplacer,
     IndentationFlexibleReplacer,
     LineTrimmedReplacer,
     SimpleReplacer,
@@ -219,6 +218,77 @@ class TestIndentationFlexibleReplacer:
 
         matches = replacer.find_matches(content, old)
         assert len(matches) == 0
+
+
+class TestFuzzyReplacer:
+    """Test fuzzy matching using SequenceMatcher."""
+
+    def test_matches_minor_typo(self) -> None:
+        """Should match content with minor differences (e.g., missing comma)."""
+        replacer = FuzzyReplacer()
+        content = "def hello():\n    print('Hello, world!')\n    return True"
+        old = "def hello():\n    print('Hello world!')\n    return True"
+
+        matches = replacer.find_matches(content, old)
+        assert len(matches) == 1
+
+    def test_no_match_below_threshold(self) -> None:
+        """Completely different content should not match."""
+        replacer = FuzzyReplacer()
+        content = "class Foo:\n    value = 42\n    name = 'bar'"
+        old = "import os\nimport sys\nprint('hello')"
+
+        matches = replacer.find_matches(content, old)
+        assert len(matches) == 0
+
+    def test_skips_large_file_short_pattern(self) -> None:
+        """Large file + short pattern should be skipped to prevent false positives."""
+        replacer = FuzzyReplacer()
+        content = "\n".join(f"line {i}" for i in range(6000))
+        old = "line 100\nline 101\nline 102"  # 3 lines (< min_pattern_lines)
+
+        matches = replacer.find_matches(content, old)
+        assert len(matches) == 0
+
+    def test_allows_large_file_long_pattern(self) -> None:
+        """Large file + long pattern should still work."""
+        replacer = FuzzyReplacer()
+        content = "\n".join(f"line {i}" for i in range(6000))
+        old = "\n".join(f"line {i}" for i in range(100, 110))  # 10 lines
+
+        matches = replacer.find_matches(content, old)
+        assert len(matches) == 1
+
+    def test_matches_renamed_variable(self) -> None:
+        """Should match when a variable name differs."""
+        replacer = FuzzyReplacer()
+        content = "def calc():\n    foo_bar = 1\n    result = foo_bar + 2\n    return result"
+        old = "def calc():\n    foo_baz = 1\n    result = foo_baz + 2\n    return result"
+
+        matches = replacer.find_matches(content, old)
+        assert len(matches) == 1
+
+    def test_empty_old_string(self) -> None:
+        """Empty old_string should return no matches."""
+        replacer = FuzzyReplacer()
+        matches = replacer.find_matches("some content", "")
+        assert len(matches) == 0
+
+    def test_empty_content(self) -> None:
+        """Empty content should return no matches."""
+        replacer = FuzzyReplacer()
+        matches = replacer.find_matches("", "some pattern")
+        assert len(matches) == 0
+
+    def test_multiple_similar_blocks(self) -> None:
+        """With multiple similar blocks, should return the best one."""
+        replacer = FuzzyReplacer()
+        content = "def a():\n    pass\n\ndef b():\n    pass"
+        old = "def a():\n    return"  # Close to first block
+
+        matches = replacer.find_matches(content, old)
+        # Should find at most 1 (the best match)
+        assert len(matches) <= 1
 
 
 class TestFindAndReplace:

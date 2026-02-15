@@ -5,11 +5,11 @@ from __future__ import annotations
 import asyncio
 import inspect
 import types
+from collections.abc import Callable
 from functools import wraps
 from typing import (
     Annotated,
     Any,
-    Callable,
     Literal,
     TypeVar,
     Union,
@@ -260,7 +260,7 @@ def tool(
         wrapper.__tool_injected_params__ = frozenset(injected_params)  # type: ignore[attr-defined]
         wrapper.__tool_original_func__ = fn  # type: ignore[attr-defined]
 
-        return cast(F, wrapper)
+        return cast("F", wrapper)
 
     # Handle @tool vs @tool()
     if func is not None:

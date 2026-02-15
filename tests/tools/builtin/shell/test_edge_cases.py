@@ -25,7 +25,6 @@ from rawagents.tools.builtin.shell._security import (
     set_shell_security_context,
 )
 from rawagents.tools.builtin.shell.bash import bash
-from rawagents.tools.builtin.shell.bash_output import bash_output
 from rawagents.tools.builtin.shell.kill_shell import kill_shell
 
 
@@ -110,7 +109,7 @@ class TestZombieProcessPrevention:
         # Check for zombie processes (Unix-specific)
         ps_result = subprocess.run(
             ["ps", "aux"],
-            capture_output=True,
+            check=False, capture_output=True,
             text=True,
         )
 
@@ -136,7 +135,7 @@ class TestZombieProcessPrevention:
         # Verify no zombies
         ps_result = subprocess.run(
             ["ps", "-p", pid],
-            capture_output=True,
+            check=False, capture_output=True,
         )
         assert ps_result.returncode != 0, "Process should not exist"
 

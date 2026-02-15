@@ -10,7 +10,7 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
-from typing import Annotated, Optional
+from typing import Annotated
 
 from rawagents.tools import tool
 from rawagents.tools.builtin.fs._security import (
@@ -29,7 +29,7 @@ MAX_RESULTS = 100
 async def glob(
     pattern: Annotated[str, "The glob pattern to match files against"],
     path: Annotated[
-        Optional[str],
+        str | None,
         "Directory to search in. If not specified, uses current working directory.",
     ] = None,
     structured: Annotated[

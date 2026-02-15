@@ -4,12 +4,13 @@ from __future__ import annotations
 
 import asyncio
 import json
-from typing import Annotated, Any, Callable, get_args, get_origin, get_type_hints
+from collections.abc import Callable
+from typing import Annotated, Any, get_args, get_origin, get_type_hints
 
 from pydantic import BaseModel
 
 from rawagents.utils.types import ToolCall, ToolResult
-from rawagents.tools.exceptions import InjectionError, ToolExecutionError
+
 
 __all__ = ["ToolExecutor"]
 
@@ -232,6 +233,35 @@ class ToolExecutor:
 
         self._invoke_after(tool_call, result)
         return result
+
+    async def execute_batch(
+        self,
+        tool_calls: list[ToolCall],
+        context: dict[str, Any] | None = None,
+    ) -> list[ToolResult]:
+        """Execute multiple tool calls in parallel.
+
+        Independent calls run concurrently via ``asyncio.gather()``.
+        Results are returned in the same order as input ``tool_calls``.
+
+        Each call is isolated: one failure does not cancel or affect others
+        (``execute()`` never raises — it returns ``ToolResult`` with
+        ``is_error=True`` on failure).
+
+        Args:
+            tool_calls: List of tool calls to execute.
+            context: Shared injection context for all calls.
+
+        Returns:
+            List of ToolResults in same order as input.
+        """
+        if not tool_calls:
+            return []
+
+        results = await asyncio.gather(
+            *(self.execute(tc, context) for tc in tool_calls),
+        )
+        return list(results)
 
     def execute_sync(
         self,
